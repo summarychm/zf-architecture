@@ -45,9 +45,9 @@ var Animal = function () {
     }
   }]);
   function Animal(type) {
-    // 第一步:检测Animal的调用方式是否合法
+    // 第一步:检测Animal的调用方式是否合法,当前this是否是Animal的实例
     _classCallCheck(this, Animal);
-    this.type = type;
+    this.type = type; //设置实例属性
   }
   // 第二步: 分别定义Animal的静态属性与方法
   _createClass(Animal, [{
