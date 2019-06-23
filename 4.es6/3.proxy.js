@@ -18,5 +18,6 @@ function update(oldVal, newVal) {
 
 let obj = { k1: "v1", k2: { o1: "val1", ary: [1, 2, 3] } };
 let objProxy = new Proxy(obj, handle);
+console.log(objProxy.k2.ary);
 objProxy.k2.ary.push("44");
 console.log("obj", obj)

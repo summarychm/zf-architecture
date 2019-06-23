@@ -1,5 +1,5 @@
-// 针对数组类型,调用继承自Array.prototype的自定义方法,在其中加入钩子函数.
-// 也可以将这7种方法直接添加到obj的原型上.
+// 针对数组类型,调用继承自Array.prototype的自定义方法,在其中加入钩子函数.AOP
+// 也可以将这7种方法直接for循环添加到obj的实例上.
 let aryProp = Object.create(Array.prototype);
 ['pop', 'push', 'shift', 'unshift', 'reverse', 'sort', 'splice'].forEach(method => {
   aryProp[method] = function () {
@@ -31,12 +31,13 @@ function observer(obj) {
 function defineObjProperty(obj, key, value) {
   Object.defineProperty(obj, key, {
     get() {
-      if (typeof value == "object") // 处理下get时value为object的情况,将value进行监控
+      //value为object的情况,将value进行监控
+      if (typeof value == "object") 
         observer(value);
       return value;
     },
     set(newVal) {
-      update(value, newVal);
+      update(value, newVal);//aop
       value = newVal;
     }
   })

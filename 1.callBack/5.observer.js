@@ -26,7 +26,6 @@ class Staff {
       console.log("红色警报,A级戒备!");
     else
       console.log("黄色警报,大家注意言行即可!");
-
   }
 }
 var zhangZong = new Boss("CTO", 3);

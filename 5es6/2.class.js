@@ -1,6 +1,7 @@
 "use strict";
 /**
  * 检索class的调用方式是否合法,当前this是否是当前构造函数的实例.
+ * 也可以通过 if(new.target!=="function") 判断
  * @param {Object} instance 实例
  * @param {Object} Constructor 构造函数
  */
@@ -37,9 +38,10 @@ function _defineProperties(target, props) {
 
 // 创建一个立即执行函数,在其中创建Animal实例并返回
 var Animal = function () {
+  console.log("===",new.target)
   // 第二步: 分别定义Animal的静态属性与方法
   _createClass(Animal, null, [{
-    key: "a",
+    key: "a", // 静态属性
     value: function a() {
       return 1;
     }
@@ -51,7 +53,7 @@ var Animal = function () {
   }
   // 第二步: 分别定义Animal的静态属性与方法
   _createClass(Animal, [{
-    key: "say",
+    key: "say", //原型方法
     value: function say() {
       console.log('说话', this);
     }
@@ -60,3 +62,4 @@ var Animal = function () {
 }();
 var animal = new Animal('哺乳类');
 console.log(Animal.a());
+console.log(Animal())

@@ -8,7 +8,7 @@ function deepClone(obj,hash=new WeakMap()) {
   hash.set(obj,instance);
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
-      // 递归拷贝
+      // 递归拷贝,不用再判断是否为对象类型
       instance[key] = deepClone(obj[key],hash);
     }
   }
