@@ -1,8 +1,9 @@
 // 虚拟 DOM类型定义
-// 虚拟 DOM:描述真实 DOM 的样子  
+// 描述真实 DOM 节点 
 class Element{
   constructor(type,props){
     this.type=type;
+    this.key=props.key;
     this.props=props;
   }
 }

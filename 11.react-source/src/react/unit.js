@@ -1,10 +1,9 @@
 import $ from 'jquery';
 /*
  每个子类都有 
- * getMarkUp(rootId) 获取 html 字符串 
- * update(nextElement,par) 组件自身更新方法
+ * getMarkUp(rootId) 返回虚拟 DOM 对应的html 字符串 
+ * update(nextElement,par) 组件自身更新方法(setState)
 */
-
 
 // 工厂父类,用于定义与抽离公共属性和方法
 class Unit {
@@ -12,8 +11,11 @@ class Unit {
     this._currentElement = element; // 缓存当前 react 组件实例(虚拟 DOM)
     // element的 props 如果应用于 dom 元素则作用于其属性,如果应用于 React 组件则充当起 props.
   }
+  getMarkUp(rootId) {
+    throw new Error("此方法不能被直接调用!")
+  }
 }
-// 子类(文本节点) 对应 string / number 元素
+// 子类:文本元素 对应 string / number 元素
 class ReactTextUnit extends Unit {
   getMarkUp(rootId) {
     this._rootId = rootId; // 缓存组件的id
@@ -21,7 +23,6 @@ class ReactTextUnit extends Unit {
   }
   // 文本节点更新方法,只关注于ele(字符串/数组)有无变化.
   update(nextElement) {
-    // 直接用新值替换旧值.
     if (this._currentElement !== nextElement) {
       this._currentElement = nextElement;
       $(`[data-reactid="${this._rootId}"]`).html(this._currentElement);
@@ -39,44 +40,38 @@ class ReactNativeUnit extends Unit {
       props
     } = this._currentElement;
     let tagStart = `<${type} data-reactid="${this._rootId}"`;
-    let childString = ``; // 存储子组件DOMString 集合
     let tagEnd = `</${type}>`;
+    let childString = ``; // 存储子组件DOMString 集合
     let renderUnitChildren = []; // 元素children的 unit 集合
     for (const propKey in props) {
-      if (props.hasOwnProperty(propKey)) {
-        const value = props[propKey];
-        if (/^on[A-Z]/.test(propKey)) {
-          // 1.处理组件的注册事件
-          let eventType = propKey.slice(2).toLowerCase();
-          //! 将事件委托到 document上,使用命名空间的方式,便于查找与移除操作.
-          $(document).delegate(`[data-reactid="${this._rootId}"]`, `${eventType}.${this._rootId}`, value);
-        } else if (propKey === 'children') {
-          // 2.处理子组件集合(涉及递归处理)
-          childString = value.map((ele, index) => {
-            let childRenReactUnit = createReactUnit(ele);
-            renderUnitChildren.push(childRenReactUnit);
-            // 拼接子节点reactid,自身节点+.+index
-            return childRenReactUnit.getMarkUp(`${this._rootId}.${index}`);
-          });
-          childString = childString.join("");
-        } else {
-          // 3.处理普通属性
-          tagStart += ` ${propKey}=${value}`;
-        }
-      }
+      if (!props.hasOwnProperty(propKey)) continue;
+      if (/^on[A-Za-z]/.test(propKey)) {
+        // 1.处理组件的注册事件
+        let eventType = propKey.slice(2).toLowerCase();
+        //! 将事件委托到 document上,使用命名空间的方式,便于查找与移除操作.
+        $(document).delegate(`[data-reactid="${this._rootId}"]`, `${eventType}.${this._rootId}`, props[propKey]);
+      } else if (propKey === 'children') {
+        // 2.处理子组件集合(涉及递归处理)
+        let children = props.children || [];
+        childString = children.map((ele, idx) => {
+          let childUnitInstance = createReactUnit(ele); // 根据虚拟 DOM 创建 unit 实例
+          renderUnitChildren.push(childUnitInstance);
+          // 拼接子节点reactid,自身节点+.+idx
+          return childUnitInstance.getMarkUp(`${this._rootId}.${idx}`);
+        }).join("");
+      } else // 3.处理普通属性
+        tagStart += ` ${propKey}=${props[propKey]}`;
     }
-    this.renderUnitChildren = renderUnitChildren;
+    this.renderUnitChildren = renderUnitChildren; // 当前子元素 unit 实例集合
     return tagStart + ">" + childString + tagEnd;
   }
   // DOM 节点更新方法,只关注于属性有无变化.
   update(nextElement) {
-    this._currentElement = nextElement; // 重置 element
+    // this._currentElement = nextElement; // 重置 element
     let oldProps = this._currentElement.props; //旧props
     let newProps = nextElement.props; // 新props
-    // 更新当前 DOM 的属性
-    this.updateProperties(oldProps, newProps);
-    //! 更新子元素(children)
-    this.updateChildren(newProps.children);
+    this.updateProperties(oldProps, newProps); // 更新当前 DOM 的属性
+    this.updateChildren(newProps.children); //! 更新子元素(children)
   }
   /**
    * 更新子元素 children(对比新旧虚拟 DOM集合)
@@ -100,11 +95,11 @@ class ReactNativeUnit extends Unit {
    * !用于新DOM元素diff
    * @param {Array} children 虚拟 DOM 集合
    */
-  getChildrenMap(children) {
+  getChildrenMap(children = []) {
     let childrenMap = {};
     for (let i = 0; i < children.length; i++) {
       // 获取 unit 对应的React 元素上的 key属性.
-      let key = (children[i]._currentElement.props && children[i]._currentElement.props.key) || i.toString();
+      let key = children[i].key || i.toString();
       childrenMap[key] = children[i];
     }
     return childrenMap;
@@ -119,13 +114,12 @@ class ReactNativeUnit extends Unit {
     let newChildren = [];
     // 以新unit集合为基准,进行 merge
     newChildrenElements.forEach((newElement, idx) => {
-      let newKey = (newElement.props && newElement.props.key) || idx.toString();//新元素的 key
+      let newKey = (newElement.props && newElement.props.key) || idx.toString(); //新元素的 key
       let oldChild = oldChildrenMap[newKey];
       let oldElement = oldChild && oldChild._currentElement;
       // 比较新旧元素(虚拟 DOM)是否一样,如果一样就深度对比
       if (shouldDeepCompare(oldElement, newElement)) {
-        // 交由子元素进行深度比较
-        oldChild.update(newElement);
+        oldChild.update(newElement); // 交由子元素进行深度比较
         //如果当前 key 在老的集合中存在,则可以复用旧的 unit
         newChildren[idx] = oldChild;
       } else {
@@ -146,15 +140,14 @@ class ReactNativeUnit extends Unit {
       if (!newProps.hasOwnProperty(propKey))
         $(`[data-reactid="${this._rootId}"`).removeAttr(propKey)
       // 删除所有的事件监听(取消委托)
-      if (/^on[A-Z]/.test(propKey))
+      if (/^on[A-Za-z]/.test(propKey))
         $(document).undelegate('.' + this._rootId); //通过命名空间删除
     }
     // 更新新的属性值
     for (propKey in newProps) {
-      // children单独处理
-      if (propKey === 'children') continue;
+      if (propKey === 'children') continue;//! children单独处理
       // 重新绑定所有的事件
-      if (/^on[A-Z]/.test(propKey)) {
+      if (/^on[A-Za-z]/.test(propKey)) {
         let eventType = propKey.slice(2).toLowerCase();
         $(document).delegate(`[data-reactid="${this._rootId}"]`, `${eventType}.${this._rootId}`, newProps[propKey]);
         continue;
@@ -170,7 +163,7 @@ class ReactComponsiteUnit extends Unit {
   // this._rootId 组件的 reactId
   // this._currentElement 虚拟DOM对象
   // this._renderedUnitInstance 工厂类实例
-  // this._componentInstance 自定义组件类实例
+  // this._componentInstance 自定义组件类实例 Counter{state,props,handleClick}
   // ! 自定义组件渲染的内容是由其render方法的返回值决定的(虚拟 DOM)
   getMarkUp(rootId) {
     this._rootId = rootId;
@@ -199,29 +192,28 @@ class ReactComponsiteUnit extends Unit {
     })
     return renderMarkUp;
   }
-  // 自定义组件更新,一般关注于 state 变化
+  //! 接收到新的更新,自定义组件传第二个参数，原生和text传第一个参数，因为他们没有状态
   update(nextElement, partialState) {
-    //确定所需新的虚拟 DOM 元素
+    // 如果接收了新的元素，就使用最新的nextElement
     this._currentElement = nextElement || this._currentElement;
-    let nextProps = this._currentElement.props; // 获取新 props.
-    // 获取新 state, 用旧状态和新状态进行合并,并更新到组件实例的 state 上.
+    // 把新的状态合并到老的实例的状态上,并更新到组件实例的 state 上.
     let nextState = this._componentInstance.state = Object.assign(this._componentInstance.state, partialState);
+    let nextProps = this._currentElement.props; // 获取新 props.
+
     // lifeCycle shouldComponentUpdate
     if (this._componentInstance.shouldComponentUpdate && !this._componentInstance.shouldComponentUpdate(nextProps, nextState))
       return;
-
     // lifeCycle componentWillUpdate
-    this._componentInstance.componentWillUpdate && this._componentInstance.componentWillUpdate();
+    this._componentInstance.componentWillUpdate && this._componentInstance.componentWillUpdate(nextProps, nextState);
 
-    // 通过旧的虚拟 DOM 找到对应的 element 元素(文本/原生/自定义).
-    let preRenderUnitInstance = this._renderedUnitInstance;
-    let preRenderElement = preRenderUnitInstance._currentElement;
+    let preRenderElement = this._renderedUnitInstance._currentElement; // unit上的虚拟 DOM
     // 根据新的 state和虚拟 DOM 来获取新的element元素
     let nextRenderElement = this._componentInstance.render();
     // 判断是否需要深度对比
     if (shouldDeepCompare(preRenderElement, nextRenderElement)) {
-      //! composite 的深比较,不是自己对比,而是交给子类的 unit 类自行比较
-      preRenderUnitInstance.update(nextRenderElement);
+      //! 自身不直接对比,交给子类的 unit 类自行比较(调用子类的 update)
+      this._renderedUnitInstance.update(nextRenderElement);
+      // lifeCycle componentDidUpdate
       this._componentInstance.componentDidUpdate && this._componentInstance.componentDidUpdate();
     } else {
       // 不需要深度对比,删除旧的,重建新的
@@ -249,7 +241,6 @@ function shouldDeepCompare(oldElement, newElement) {
     // 如果是原生/自定义类型则判断类型是否相同,相同则进行深度对比.
     return newType === "object" && oldElement.type === newElement.type;
   }
-
 }
 
 /**
@@ -260,17 +251,14 @@ function shouldDeepCompare(oldElement, newElement) {
  */
 function createReactUnit(element) {
   // 类型一: 文本节点
-  if (typeof element === "number" || typeof element === "string") {
+  if (typeof element === "number" || typeof element === "string")
     return new ReactTextUnit(element);
-  }
   // 类型二: 原生 DOM 节点
-  else if (typeof element === "object" && typeof element.type === "string") {
+  else if (typeof element === "object" && typeof element.type === "string")
     return new ReactNativeUnit(element);
-  }
   // 类型三: React 自定义组件
-  else if (typeof element === "object" && typeof element.type === "function") {
+  else if (typeof element === "object" && typeof element.type === "function")
     return new ReactComponsiteUnit(element);
-  }
 }
 
 export default createReactUnit;
