@@ -32,7 +32,7 @@ class ReactTextUnit extends Unit {
 
 //子类:原生 DOM 元素
 class ReactNativeUnit extends Unit {
-  // 将 React.createElement 语法转为 html 字符串
+  // 将虚拟DOM语法转为 html 字符串
   getMarkUp(rootId) {
     this._rootId = rootId;
     const {
@@ -45,13 +45,14 @@ class ReactNativeUnit extends Unit {
     let renderUnitChildren = []; // 元素children的 unit 集合
     for (const propKey in props) {
       if (!props.hasOwnProperty(propKey)) continue;
+      // 1.处理组件的注册事件
       if (/^on[A-Za-z]/.test(propKey)) {
-        // 1.处理组件的注册事件
         let eventType = propKey.slice(2).toLowerCase();
+        // className style都没处理
         //! 将事件委托到 document上,使用命名空间的方式,便于查找与移除操作.
         $(document).delegate(`[data-reactid="${this._rootId}"]`, `${eventType}.${this._rootId}`, props[propKey]);
-      } else if (propKey === 'children') {
         // 2.处理子组件集合(涉及递归处理)
+      } else if (propKey === 'children') {
         let children = props.children || [];
         childString = children.map((ele, idx) => {
           let childUnitInstance = createReactUnit(ele); // 根据虚拟 DOM 创建 unit 实例
@@ -145,7 +146,7 @@ class ReactNativeUnit extends Unit {
     }
     // 更新新的属性值
     for (propKey in newProps) {
-      if (propKey === 'children') continue;//! children单独处理
+      if (propKey === 'children') continue; //! children单独处理
       // 重新绑定所有的事件
       if (/^on[A-Za-z]/.test(propKey)) {
         let eventType = propKey.slice(2).toLowerCase();
@@ -186,7 +187,7 @@ class ReactComponsiteUnit extends Unit {
     let renderUnitInstance = this._renderedUnitInstance = createReactUnit(renderedElement);
     // 4.根据虚拟 DOM获取当前组件的 html 字符串
     let renderMarkUp = renderUnitInstance.getMarkUp(this._rootId);
-    $(document).on('mounted', () => {
+    $(document).on('mounted', () => { // 自定义组件需要绑定didMount事件
       // lifeCycle componentDidMount
       componentInstance.componentDidMount && componentInstance.componentDidMount();
     })
@@ -259,6 +260,8 @@ function createReactUnit(element) {
   // 类型三: React 自定义组件
   else if (typeof element === "object" && typeof element.type === "function")
     return new ReactComponsiteUnit(element);
+  else
+    console.error("没有找到对应的子类!")
 }
 
 export default createReactUnit;

@@ -5,7 +5,6 @@
  * 方法
  *  setState
  */
-
 class Component {
   constructor(props) {
     this.props = props;
