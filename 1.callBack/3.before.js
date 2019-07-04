@@ -4,19 +4,22 @@
  * @param {Function} cb 回调函数
  */
 function before(total, cb) {
-  let result;
+  let result; // 缓存最终的返回值,如果超过边界则返回该值
   if (typeof cb != 'function') return new TypeError("应为一个函数!");
   return () => {
-    if (--total >= 0) {
-      console.log(total);
+    if (--total >= 0)
       result = cb();
-    }
     if (total <= 0)
       cb = null;
     return result;
   }
 }
-// testCode
-document.querySelector('#wiki-content').addEventListener("click", before(3, function () {
-  console.log("点击事件");
-}))
+// // testCode
+// document.querySelector('#wiki-content').addEventListener("click", before(3, function () {
+//   console.log("点击事件");
+// }));
+
+let ceshi=before(3,()=>{console.log("运行",Date.now())})
+setInterval(function(){
+  console.log("setInterval");
+},100)

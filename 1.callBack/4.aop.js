@@ -22,3 +22,6 @@ var ajaxUrlSection = new Proxy(ajaxUrl, {
   }
 });
 ajaxUrlSection("www.baidu.com");
+
+
+
