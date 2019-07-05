@@ -4,7 +4,7 @@ class Counter extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      number: 0
+      number: 1
     };
   }
   componentWillMount() {
@@ -22,7 +22,7 @@ class Counter extends React.Component {
     });
   };
   render() {
-    let p = React.createElement("p", {}, this.state.number);
+    let p = React.createElement("p", null, this.state.number);
     let button = React.createElement(
       "button",
       {
