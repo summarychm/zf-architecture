@@ -11,7 +11,6 @@ function after(total, cb) {
       return cb.call(this, args);
   }
 }
-
 // // testCode
 // var saves = ['profile', 'settings'];
 // var done = after(saves.length, function () {
@@ -21,4 +20,4 @@ function after(total, cb) {
 //   console.log(item);
 //   done();
 // });
-module.exports={after:after}
+module.exports=after
