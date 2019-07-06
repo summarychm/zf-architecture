@@ -1,6 +1,6 @@
 let http = require("http");
 let Stream = require("stream");
-let EventEmitter = require('events');
+let EventEmitter = require('events'); // 用于报错捕获
 let context = require("./context");
 let request = require("./request");
 let response = require("./response");
@@ -30,29 +30,29 @@ class Application extends EventEmitter {
   compose(ctx, middlewares) {
     let dispatch = async function (index) {
       let middle = middlewares[index];
-      if (index >= middlewares.length) // 处理超限
+      if (index >= middlewares.length) // 遍历完毕,返回空Promise
         return Promise.resolve();
-      // 执行第一个中间件函数
-      return middle(ctx, () => {
-        dispatch(index + 1) // 使用一个新函数(next 函数)包裹下一个 dispatch
+      return middle(ctx, () => { // 执行新的中间件,将下一个中间件调用包装到函数中暴露给用户
+        dispatch(index + 1); // 让用户可以手动next
       })
     };
     return dispatch(0); // 返回一个 promise,保证可以链式调用
   }
-  // 处理用户发来的请求,依次调用用户定义的中间件函数.全部调用完毕后,下发body 数据
+  //! 处理用户发来的请求,依次调用用户定义的中间件函数.全部调用完毕后,下发body 数据
   handleRequest(req, res) {
-    let ctx=this.createContext(req, res); //基于 req,res 创建上下文
-    res.statusCode = 404; // 默认设置为 404 状态
-    // 把所有中间件组装成一个 promise,等待 promise 执行成功后,将结果发回给用户.
+    let ctx = this.createContext(req, res); //基于 req,res 创建自定义ctx
+    res.statusCode = 404; // 默认设置为 404(body更改,则自动更换) 
+    //! 将用户注册的中间件依次执行,并提供next函数供用户随时切换到下一个中间件.
+    //! 将整体注册为一个promise对象,全部调用完毕后输出ctx.body
     let pro = this.compose(ctx, this.middlewares);
     pro.then(() => {
       if (!ctx.body) // 设置 res 的默认值.
         return res.end("Not Found");
-      if (ctx.body instanceof Stream) { // 对象为数据流的情况,下载文件
+      if (ctx.body instanceof Stream) { //! 对象为数据流的情况,下载文件
         res.setHeader('Content-type', 'application/octet-stream');
         res.setHeader('Content-Disposition', 'attachment;filename=' + encodeURIComponent('下载'));
         return ctx.body.pipe(res);
-      } else if (typeof ctx.body === 'object') { // body为 对象的情况
+      } else if (typeof ctx.body === 'object') { //! body为 对象的情况
         res.setHeader("Content-Type", "application/json");
         return res.end(JSON.stringify(ctx.body));
       } else
@@ -62,9 +62,9 @@ class Application extends EventEmitter {
     });
   }
   listen() {
-    // 避免函数嵌套,将 request 提炼为单独的方法.
+    // 避免函数嵌套,将createServer的回调提炼为单独的方法.
     let server = http.createServer(this.handleRequest.bind(this));
-    server.listen(...arguments);
+    server.listen(...arguments); // 将linsener方法原样传递
   }
 }
 module.exports = Application;

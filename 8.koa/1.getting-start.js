@@ -8,11 +8,11 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-// app.use(async (ctx,next)=>{
-//   let url=path.resolve(__dirname,"./node.md")
-//   ctx.body=fs.createReadStream(url);
-//   next();
-// })
+app.use(async (ctx,next)=>{
+  let url=path.resolve(__dirname,"../test.txt")
+  ctx.body=fs.createReadStream(url);
+  next();
+})
 
 // app.use((ctx)=>{
 //   ctx.body={a:1}
