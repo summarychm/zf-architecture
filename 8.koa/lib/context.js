@@ -1,6 +1,7 @@
 const context = {};
 
 defineGetter("request", 'method');
+defineGetter("request","path");
 defineGetter("response", 'body');
 defineSetter("response",'body');
 

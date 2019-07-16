@@ -5,6 +5,7 @@ let mime = require("mime");
 // 静态资源加载
 function static(pathName) {
   return async (ctx, next) => {
+    console.log("pathnanme",pathName,ctx.method,ctx.path)
     // 读取用户索要的页面
     let requestPath = path.join(pathName, ctx.path);
     try {

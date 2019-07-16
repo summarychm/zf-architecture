@@ -4,6 +4,7 @@ class request {
     return this.req.method;
   }
   get path() {
+    console.log("-------")
     return url.parse(this.req.url).pathname;
   }
 }

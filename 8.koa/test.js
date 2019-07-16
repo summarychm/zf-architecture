@@ -3,16 +3,19 @@ let path = require("path");
 
 let Koa = require("./lib/application");
 let app = new Koa();
+// let koaStatic = require('./lib/koa-static');
+// app.use(koaStatic(path.join(__dirname,"./public"))); //使用中间件
+
 app.use(async (ctx, next) => {
   ctx.body = "getting start!";
   await next();
 });
 
-app.use(async (ctx,next)=>{
-  let url=path.resolve(__dirname,"../test.txt")
-  ctx.body=fs.createReadStream(url);
-  next();
-})
+// app.use(async (ctx, next) => {
+//   let url = path.resolve(__dirname, "../test.txt")
+//   ctx.body = fs.createReadStream(url);
+//   next();
+// })
 
 // app.use((ctx)=>{
 //   ctx.body={a:1}
