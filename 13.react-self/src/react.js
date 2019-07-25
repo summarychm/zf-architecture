@@ -3,6 +3,7 @@ import {Component} from './component';
 import {createElement} from './element';
 import {createUnit} from './unit';
 
+// 汇总React需要导出的方法
 let React = {
   render,
   createElement,

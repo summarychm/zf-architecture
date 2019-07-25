@@ -11,7 +11,8 @@ class Element {
  * @param {object} props 属性集合
  * @param  {...any} children 子元素集合
  */
-function createElement(type, props = {}, ...children) {
+function createElement(type, props, ...children) {
+  props = props || {};
   props.children = children || [];
   return new Element(type, props);
 }
