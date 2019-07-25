@@ -1,4 +1,5 @@
 import React from 'react';
+import {bindActionCreators} from "../redux";
 import ReactReduxContext from './context';
 // 负责将组件和store进行关联(HOC)
 // 接收mapStateToProps和mapDispatchToProps两个处理函数
@@ -10,6 +11,7 @@ export default function (mapStateToProps, mapDispatchToProps) {
       static contextType = ReactReduxContext;
       constructor(props, context) {
         super(props);
+        // debugger
         // 将完整的store交由用户自行映射
         this.state = mapStateToProps(context.store.getState(),props);
         if (typeof mapDispatchToProps === 'function') { // 兼容dispatch为函数形式,支持传递props
@@ -25,7 +27,7 @@ export default function (mapStateToProps, mapDispatchToProps) {
           this.setState(mapStateToProps(store.getState()))
         })
       }
-      componentWillMount() {
+      componentWillUnmount() {
         this.unsubscribe(); //取消订阅
       }
       render() {
