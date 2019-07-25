@@ -24,7 +24,7 @@ export default function (mapStateToProps, mapDispatchToProps) {
           store
         } = this.context;
         this.unsubscribe = store.subscribe(() => {
-          this.setState(mapStateToProps(store.getState()))
+          this.setState(mapStateToProps(store.getState(),this.props))
         })
       }
       componentWillUnmount() {

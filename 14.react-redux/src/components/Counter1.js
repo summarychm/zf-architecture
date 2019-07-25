@@ -1,6 +1,6 @@
 import React from "react";
+import {PureComponent} from "../Core/react";
 import {connect} from "../Core/react-redux";
-import PureComponent from "../Core/react/PureComponent.js";
 import actions from "../store/actions/counter1.js";
 class Counter extends PureComponent {
 	render() {

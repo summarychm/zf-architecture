@@ -23,4 +23,4 @@ function shallowEqual(obj1, obj2) {
   }
   return true;
 }
-export default PureComponent;
+export {PureComponent};

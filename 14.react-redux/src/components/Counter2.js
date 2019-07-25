@@ -1,6 +1,6 @@
 import React from "react";
+import {PureComponent} from "../Core/react";
 import {connect} from "../Core/react-redux";
-import PureComponent from "../Core/react/PureComponent.js";
 import * as types from "../store/action-types";
 class Counter extends PureComponent {
 	render() {
@@ -14,10 +14,9 @@ class Counter extends PureComponent {
 		);
 	}
 }
-const mapStateToProps = (state) => state.counter2;
+const mapStateToProps = (state, ownProps) => state.counter2;
 const mapDispatchToProps = (dispatch, ownProps) => ({
 	add() {
-		// debugger
 		dispatch({ type: types.ADD2, payload: ownProps.amount });
 	},
 	minus() {

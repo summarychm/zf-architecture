@@ -12,9 +12,3 @@ ReactDOM.render(
 	</Provider>,
 	document.getElementById("root"),
 );
-
-// import Page from "./components/Page";
-// ReactDOM.render(
-// 	<Page />,
-// 	document.getElementById("root"),
-// );
