@@ -9,6 +9,7 @@ class Counter extends PureComponent {
 			<div style={{ border: "1px solid green" }}>
 				<p>{this.props.number}</p>
 				<button onClick={this.props.add}>+</button>
+				<button onClick={this.props.asyncAdd}>async +</button>
 				<button onClick={this.props.minus}>-</button>
 			</div>
 		);
