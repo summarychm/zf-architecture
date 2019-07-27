@@ -4,6 +4,6 @@ import reduxPromise from "../Core/redux-promise";
 import thunk from "../Core/redux-thunk";
 import reducer from "./reducers";
 
-// let store = createStore(reducer);
-let store = applyMiddleware(reduxPromise,thunk, logger)(createStore)(reducer);
+let store = createStore(reducer,applyMiddleware(reduxPromise,thunk, logger));
+// let store = applyMiddleware(reduxPromise,thunk, logger)(createStore)(reducer);
 export default store;

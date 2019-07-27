@@ -4,8 +4,17 @@ import isPlainObject from "./utils/isPlainObject";
  * @param {*} reducer  通过传入当前状态树和动作返回下一个状态树的一个函数
  * @param {*} preloadedState  初始状态
  */
-export default function createStore(reducer, preloadedState) {
+export default function createStore(reducer, preloadedState, enhancer) {
 	if (typeof reducer !== "function") throw new Error("Expected the reducer to be a function.");
+	// 兼容preloadedState而enhancer传递的情况
+	if (typeof preloadedState === "function" && typeof enhancer === "undefined") {
+		enhancer = preloadedState;
+		preloadedState = undefined;
+	}
+	if (typeof enhancer !== "undefined") {
+		return enhancer(createStore)(reducer, preloadedState);
+	}
+
 	let currentState = preloadedState; //当前的状态
 	let currentListeners = []; //当前的监听数组
 
@@ -16,7 +25,7 @@ export default function createStore(reducer, preloadedState) {
 
 	//增加一个状态变化监听函数。它将在每次动作被派发的时候调用
 	function subscribe(listener) {
-		let isSubscribed = true;//是否已取消监听(闭包)
+		let isSubscribed = true; //是否已取消监听(闭包)
 		currentListeners.push(listener); //向新的数组中添加监听函数
 		return function unsubscribe() {
 			//返回一个取消监听函数
@@ -36,7 +45,7 @@ export default function createStore(reducer, preloadedState) {
 
 		currentState = reducer(currentState, action); //根据action生成新的state.
 		for (let i = 0; i < currentListeners.length; i++) {
-			const listener = currentListeners[i];// 依次调用回调监听
+			const listener = currentListeners[i]; // 依次调用回调监听
 			listener();
 		}
 		return action; //返回派发的动作
