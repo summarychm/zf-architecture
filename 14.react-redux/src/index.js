@@ -1,14 +1,35 @@
+// redux相关示例(还不能进行整合)
+// import React from "react";
+// import ReactDOM from "react-dom";
+// import Counter1 from "./Components/Counter1";
+// import Counter2 from "./Components/Counter2";
+// import {Provider} from "./Core/react-redux";
+// import store from "./store";
+
+// ReactDOM.render(
+// 	<Provider store={store}>
+// 		<Counter1/>
+// 		<Counter2  amount={5} />
+// 	</Provider>,
+// 	document.getElementById("root"),
+// );
+
+// react-router示例
 import React from "react";
 import ReactDOM from "react-dom";
-import Counter1 from "./components/Counter1";
-import Counter2 from "./components/Counter2";
-import {Provider} from "./Core/react-redux";
-import store from "./store";
+import Home from "./Components/Home";
+import Profile from "./Components/Profile";
+import User from "./Components/User";
+import {HashRouter as Router, Route} from "./Core/react-router-dom";
 
 ReactDOM.render(
-	<Provider store={store}>
-		<Counter1/>
-		<Counter2  amount={5} />
-	</Provider>,
+	<Router>
+		<div>
+			<Route path="/" component={Home} />
+			<Route path="/home" component={Home} />
+			<Route path="/user" component={User} />
+			<Route path="/profile" component={Profile} />
+		</div>
+	</Router>,
 	document.getElementById("root"),
 );
