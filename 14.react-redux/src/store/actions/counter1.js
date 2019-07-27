@@ -13,6 +13,16 @@ export default {
 			}, 1000);
 		};
 	},
+	promiseAdd(){
+		return {
+			type:types.ADD1,
+			payload:new Promise((resolve,reject)=>{
+				setTimeout(() => {
+					resolve(8);
+				}, 1000);
+			})
+		}
+	},
 	minus() {
 		return {
 			type: types.MINUS1,

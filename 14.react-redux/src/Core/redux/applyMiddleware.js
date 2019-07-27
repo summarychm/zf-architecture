@@ -6,9 +6,10 @@ export default function applyMiddleware(...middlewares) {
       const store = createStore(...args);
       // debugger;
 			let dispatch; // 2.存储最新的dispatch,保证每次调用的都是增强后的dispatch
-			const middlewaresAPI = {
+      // 构建给中间件使用的getStore和增强后的dispatch
+      const middlewaresAPI = {
 				getStore: store.getState,
-				// 每次传入的都是最新增强的dispatch
+				// 每次传入的都是最新增强的dispatch,传入dispatch为了可以级联派发action
 				dispatch: (...args) => dispatch(...args),
 			};
 			// 3.组合中间件并包裹store.dispatch
