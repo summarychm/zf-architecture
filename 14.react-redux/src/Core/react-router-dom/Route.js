@@ -1,6 +1,6 @@
+import pathToRegexp from "path-to-regexp";
 import React from "react";
 import ReactContext from "./context";
-import pathToRegexp from "path-to-regexp";
 
 export default class Route extends React.Component {
 	static contextType = ReactContext;

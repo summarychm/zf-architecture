@@ -20,12 +20,16 @@ import ReactDOM from "react-dom";
 import Home from "./Components/Home";
 import Profile from "./Components/Profile";
 import User from "./Components/User";
-import {HashRouter as Router, Route} from "./Core/react-router-dom";
+import {HashRouter as Router, Link, Route} from "./Core/react-router-dom";
 
 ReactDOM.render(
 	<Router>
 		<div>
-			<Route path="/" component={Home} />
+			<Link to="/">Home</Link>
+			<Link to="/user">User</Link>
+			<Link to="/profile">Profile</Link>
+			<hr/>
+			<Route path="/" component={Home} exact />
 			<Route path="/user" component={User} />
 			<Route path="/profile" component={Profile} />
 		</div>
