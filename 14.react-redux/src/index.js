@@ -26,7 +26,6 @@ ReactDOM.render(
 	<Router>
 		<div>
 			<Route path="/" component={Home} />
-			<Route path="/home" component={Home} />
 			<Route path="/user" component={User} />
 			<Route path="/profile" component={Profile} />
 		</div>
