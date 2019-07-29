@@ -3,11 +3,14 @@ import ReactContext from "./context";
 export default class Link extends React.Component {
 	static contextType = ReactContext;
 	render() {
-		let { to, children } = this.props;
+		let { to, children, ...rest } = this.props,
+			{ history } = this.context;
 		return (
 			<a
+				{...rest}
+				href={history.createHref(this.props.to)}
 				onClick={() => {
-					this.context.history.push(to);
+					history.push(to);
 				}}>
 				{children}
 			</a>

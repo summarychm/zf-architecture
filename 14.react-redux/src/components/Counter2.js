@@ -1,7 +1,7 @@
+import React from "react";
 import {PureComponent} from "../Core/react";
 import {connect} from "../Core/react-redux";
 import * as types from "../store/action-types";
-import React from "./node_modules/react";
 
 class Counter extends PureComponent {
 	render() {

@@ -1,7 +1,8 @@
 import HashRouter from "./HashRouter";
 import Link from "./Link";
+import Redirect from "./Redirect";
 import Route from "./Route";
-
-
-export {HashRouter, Route, Link};
+import Switch from "./Switch";
+import withRouter from "./withRouter";
+export {HashRouter, Route, Link, Switch, Redirect, withRouter};
 
