@@ -1,5 +1,5 @@
 import React from "react";
-import RouterContext from "./context";
+import RouterContext from '../react-router-dom/context'
 
 export default class HashRouter extends React.Component {
 	constructor(props) {
@@ -8,6 +8,7 @@ export default class HashRouter extends React.Component {
 			location: { pathname: window.location.hash.slice(1) },
 		};
 		this.locationState = null;
+		this.block = null;
 	}
 	componentDidMount() {
 		this.hashChangeFn = () => {
@@ -32,18 +33,20 @@ export default class HashRouter extends React.Component {
 		let value = {
 			location: that.state.location,
 			history: {
-				createHref(to){
-					let href="#";
-					if(typeof to==='object')
-						href+=to.pathname;
-					else if(typeof to==="string")
-						href+=to;
-					else
-						href+="/";
+				createHref(to) {
+					let href = "#";
+					if (typeof to === "object") href += to.pathname;
+					else if (typeof to === "string") href += to;
+					else href += "/";
 					return href;
 				},
 				// 不同实现的抽象封装
 				push(to) {
+					if (that.block) { // 是否阻止跳转	
+						let allow = window.confirm(that.block(that.state.location));
+						if (!allow) return;
+						console.log("继续?",allow)
+					}
 					//传递对象的形式
 					if (typeof to === "object") {
 						let { pathname, state } = to;
@@ -55,6 +58,12 @@ export default class HashRouter extends React.Component {
 						that.locationState = null;
 						window.location.hash = to;
 					}
+				},
+				block(message) {
+					that.block = message;
+				},
+				unblock() {
+					that.block = null;
 				},
 			},
 		};
