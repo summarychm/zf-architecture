@@ -1,8 +1,9 @@
 import React from "react";
-import { Route, Link } from "../Core/react-router-dom";
+import {Link, Route} from "../Core/react-router-dom";
 import "./MenuLink.css";
-export default function({ exact, to, children }) {
-	//children不管路径是否匹配，都会渲染返回值，render只会在path和地址栏路径匹配的时候才渲染
+// 使用Route组件children属性的渲染特性
+// 在children中通过props.match(匹配详情)属性来判断是否匹配成功,
+export default function ({exact, to, children}) {
 	return (
 		<Route
 			exact={exact}

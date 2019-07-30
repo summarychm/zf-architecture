@@ -35,9 +35,7 @@ ReactDOM.render(
 					<NavHeader />
 					<ul className="nav navbar-nav">
 						<li>
-							<MenuLink exact={true} to="/">
-								首页
-							</MenuLink>
+							<MenuLink exact={true} to="/">首页</MenuLink>
 						</li>
 						<li>
 							<MenuLink to="/user">用户管理</MenuLink>

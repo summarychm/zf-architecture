@@ -10,6 +10,8 @@ export default class Route extends React.Component {
 			location: this.context.location,
 			history: this.context.history,
 		};
+		// children不管路径是否匹配，都会渲染返回值，
+		// render只会在path和location.pathname匹配的时候才渲染
 		let { path = "/", exact = false, component: Component, render, children } = this.props;
 		let { pathname } = this.context.location;
 		let pathNames = [], //存储路径参数
@@ -36,5 +38,3 @@ export default class Route extends React.Component {
 		else return null;
 	}
 }
-
-// 提取混合keyObj和valueObj
