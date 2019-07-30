@@ -29,6 +29,9 @@ export default class BrowserRouter extends React.Component {
       });
     }
   }
+  componentDidMount(){
+    window.history.pushState("", "", window.location.pathname);
+  }
   render() {
     let that = this;
     let value = {
