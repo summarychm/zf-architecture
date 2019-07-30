@@ -1,36 +1,28 @@
 import React, {Component} from "react";
 import {createRef} from "../Core/react";
-import {Prompt} from "../Core/react-router-dom";
+import {withPrompt} from "../Core/react-router-dom";
 import * as local from "../utils/local";
 
-export default class UserAdd extends Component {
+class UserAdd extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {isBlocking: false};
 		this.usernameRef = createRef();
 	}
 	handleSubmit = (event) => {
 		event.preventDefault();
-		this.setState({isBlocking: false}, () => {
-			let username = this.usernameRef.current.value,
-				users = JSON.parse(local.getItem("users", "[]"));
-			users.push({id: Date.now() + "", username});
-			local.setItem("users", users);
-			this.props.history.push("/user/list");
-		});
+		this.props.settle(false,null);// 清空阻止跳转功能
+		let username = this.usernameRef.current.value,
+			users = JSON.parse(local.getItem("users", "[]"));
+		users.push({id: Date.now() + "", username});
+		local.setItem("users", users);
+		this.props.history.push("/user/list");
 	};
 	textChange = (e) => {
-		this.setState({
-			isBlocking: this.state.isBlocking || e.target.value.length > 0,
-		});
+		this.props.settle(e.target.value.length>0,location=>`你是否要离开${location.pathname}`)
 	};
 	render() {
 		return (
 			<form onSubmit={this.handleSubmit}>
-				<Prompt
-					when={this.state.isBlocking}
-					message={(location) => `你确定要离开${location.pathname}吗？`}
-				/>
 				<input
 					className="form-control"
 					type="text"
@@ -44,3 +36,5 @@ export default class UserAdd extends Component {
 		);
 	}
 }
+
+export default withPrompt(UserAdd);
