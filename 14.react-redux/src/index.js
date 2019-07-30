@@ -25,7 +25,7 @@ import MenuLink from "./Components/MenuLink";
 import NavHeader from "./Components/NavHeader";
 import Profile from "./Components/Profile";
 import User from "./Components/User";
-import {HashRouter as Router, Redirect, Route, Switch} from "./Core/react-router-dom";
+import {BrowserRouter as Router, Redirect, Route, Switch} from "./Core/react-router-dom";
 
 ReactDOM.render(
 	<Router>

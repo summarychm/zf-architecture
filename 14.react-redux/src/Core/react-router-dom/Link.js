@@ -9,7 +9,8 @@ export default class Link extends React.Component {
 			<a
 				{...rest}
 				href={history.createHref(this.props.to)}
-				onClick={() => {
+				onClick={(e) => {
+					e.preventDefault();
 					history.push(to);
 				}}>
 				{children}
