@@ -104,39 +104,40 @@ class NativeUnit extends Unit {
   diff(newChildrenElements) {
     // 构建oldChildrenUnit集合,用于判断新元素在旧元素中是否存在
     let oldChildrenUnitMap = this.getChildrenUnitMap(this._renderedChildrenUnits);
+    // 获取newChildren对应的Unit集合,并更新DOM
     let newChildren = this.getNewChildren(oldChildrenUnitMap, newChildrenElements);
   }
   /** 根据虚拟 DOM 元素集合获取element元素集合(Object)
    * !用于新DOM元素diff
    * @param {Array} children 虚拟 DOM 集合
    */
-  getChildrenUnitMap(childrenUnits = []) {
+  getChildrenUnitMap(childrenUnitAry = []) {
     let childrenMap = {};
-    for (let i = 0; i < childrenUnits.length; i++) {
+    for (let i = 0; i < childrenUnitAry.length; i++) {
       //! 获取unit对应的虚拟DOM上的key属性
-      let unit = childrenUnits[i];
+      let unit = childrenUnitAry[i];
       let key = (unit._currentElement.props && unit._currentElement.props.key) || i.toString();
       childrenMap[key] = unit;
     }
     return childrenMap;
   }
-  /** 获取新的虚拟 DOM数组
+  /** 获取新的虚拟DOM数组,并更新DOM
    * !只考虑元素属性变化,不考虑元素自身的增/删/位移(通过补丁包解决)
    * @param {Object} oldChildrenUnitMap 旧children虚拟 DOM
-   * @param {Array} newChildrenElements 新 children 虚拟 DOM
+   * @param {Array} newChildrenElementAry 新children 虚拟 DOM
    */
-  getNewChildren(oldChildrenUnitMap, newChildrenElements) {
+  getNewChildren(oldChildrenUnitMap, newChildrenElementAry) {
     let newChildren = [];
-    // 以新unit集合为基准,进行 merge
-    newChildrenElements.forEach((newElement, idx) => {
+    // 以新虚拟domAry为基准,获取新虚拟domUnit集合
+    newChildrenElementAry.forEach((newElement, idx) => {
       let newKey = (newElement.props && newElement.props.key) || idx.toString(); //! 新元素的 key
-      let oldChild = oldChildrenUnitMap[newKey];//老Unit实例
+      let oldChild = oldChildrenUnitMap[newKey];//尝试从老Unit集合中获取unit实例
       let oldElement = oldChild && oldChild._currentElement; //老虚拟DOM实例
       // 比较新旧虚拟DOM,看是否需深度对比
       if (shouldDeepCompare(oldElement, newElement)) {
         oldChild.update(newElement); //! 交由子元素进行深度比较更新(可能递归)
-        newChildren.push(oldChild);//复用旧的unit
-      } else {
+        newChildren.push(oldChild);// 复用旧的unit
+      } else { // 无需深度对比,构建新的unit对象
         let unit = createReactUnit(newElement);
         newChildren.push(unit);//构建新的unit对象
       }
