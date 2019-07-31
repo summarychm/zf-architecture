@@ -9,10 +9,11 @@ class Counter extends PureComponent {
 		return (
 			<div style={{ border: "1px solid green" }}>
 				<p>{this.props.number}</p>
-				<button onClick={this.props.add}>+</button>
-				<button onClick={this.props.minus}>-</button>
-				<button onClick={this.props.asyncAdd}>async +</button>
-				<button onClick={this.props.promiseAdd}>Promise +</button>
+				<button className="btn btn-info" onClick={this.props.add}>+</button>
+				<button className="btn btn-info" onClick={this.props.minus}>-</button>
+				<button className="btn btn-danger" onClick={this.props.asyncAdd}>async +</button>
+				<button className="btn btn-danger" onClick={this.props.promiseAdd}>Promise +</button>
+				<button className="btn btn-primary" onClick={()=>this.props.goto("/user")}>去首页</button>
 			</div>
 		);
 	}

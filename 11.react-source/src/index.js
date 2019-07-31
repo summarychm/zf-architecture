@@ -22,23 +22,11 @@ class Counter extends React.Component {
     });
   };
   render() {
-    let p = React.createElement("p", null, this.state.number);
-    let button = React.createElement(
-      "button",
-      {
-        onClick: this.handleClick
-      },
-      "+"
-    );
-    return React.createElement(
-      "div",
-      {
-        id: "counter"
-      },
-      p,
-      button
-    );
+    let pName = React.createElement("span", null, this.state.number);
+    let pCount = React.createElement("span", {style: {padding: "10px"}}, this.props.name);
+    let button = React.createElement("button", {onClick: this.handleClick}, "+");
+    return React.createElement("div", {id: "counter"}, pCount, pName, button);
   }
 }
-let element = React.createElement(Counter, { name: "计数器" });
+let element = React.createElement(Counter, {name: "计数器"});
 React.render(element, window.root);

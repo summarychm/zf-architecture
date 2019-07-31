@@ -1,4 +1,6 @@
 import * as types from "../action-types";
+import {pathToFileURL} from "url";
+import {push} from "../../Core/connected-react-router";
 
 export default {
 	add() {
@@ -9,14 +11,14 @@ export default {
 	asyncAdd() {
 		return (dispatch) => {
 			setTimeout(() => {
-				dispatch({ type: types.ADD1 });
+				dispatch({type: types.ADD1});
 			}, 1000);
 		};
 	},
-	promiseAdd(){
+	promiseAdd() {
 		return {
-			type:types.ADD1,
-			payload:new Promise((resolve,reject)=>{
+			type: types.ADD1,
+			payload: new Promise((resolve, reject) => {
 				setTimeout(() => {
 					resolve(8);
 				}, 1000);
@@ -28,4 +30,8 @@ export default {
 			type: types.MINUS1,
 		};
 	},
+	// 通过派发action修改router,支持path和state参数
+	goto(path, state) {
+		return push(path, state);
+	}
 };

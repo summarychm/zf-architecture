@@ -2,10 +2,13 @@ import pathToRegexp from "path-to-regexp";
 import React from "react";
 import * as tools from "../../utils/tools";
 import RouterContext from "./context";
+console.log(RouterContext);
 export default class Route extends React.Component {
 	static contextType = RouterContext;
 	render() {
 		// 制作route的参数(history,location,match)
+		
+		
 		let props = {
 			location: this.context.location,
 			history: this.context.history,

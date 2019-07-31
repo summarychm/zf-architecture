@@ -1,11 +1,12 @@
 /**
- * 定义组件公共属性和方法
+ * 用户自定义组件父类ReactElement
  * 属性
  *  props
  * 方法
  *  setState
  */
 class Component {
+  static isReactComponent = true;
   constructor(props) {
     this.props = props;
   }

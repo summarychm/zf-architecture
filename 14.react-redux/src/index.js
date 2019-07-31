@@ -1,8 +1,12 @@
 // react-router示例
 
-import "bootstrap/dist/css/bootstrap.css";
+
 import React from "react";
 import ReactDOM from "react-dom";
+import {ConnectedRouter} from "./Core/connected-react-router";
+import {Provider} from "./Core/react-redux";
+import {HashRouter ,Redirect, Route, Switch} from "./Core/react-router-dom";
+
 import Authorized from "./Components/Authorized";
 import Counter from "./Components/Counter";
 import Home from "./Components/Home";
@@ -11,13 +15,14 @@ import MenuLink from "./Components/MenuLink";
 import NavHeader from "./Components/NavHeader";
 import Profile from "./Components/Profile";
 import User from "./Components/User";
-import {Provider} from "./Core/react-redux";
-import {BrowserRouter as Router, Redirect, Route, Switch} from "./Core/react-router-dom";
+
 import store from "./store";
+import history from "./utils/history";
+import "bootstrap/dist/css/bootstrap.css";
 
 ReactDOM.render(
 	<Provider store={store} >
-		<Router>
+		<ConnectedRouter history={history}>
 			<>
 				<nav className="navbar navbar-inverse">
 					<div className="fluid-container">
@@ -51,7 +56,7 @@ ReactDOM.render(
 					</div>
 				</div>
 			</>
-		</Router>
+		</ConnectedRouter>
 	</Provider>,
 	document.getElementById("root"),
 );
