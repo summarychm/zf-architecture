@@ -2,7 +2,7 @@
 class ReactElement {
   constructor(type, props) {
     this.type = type;
-    this.key = props.key; // dom diff
+    // this.key = props.key; // dom diff
     this.props = props;
   }
 }

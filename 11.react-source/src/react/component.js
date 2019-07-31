@@ -12,9 +12,9 @@ class Component {
   }
   setState(partialState) {
     console.log("setState", partialState);
-    // 调用组件 unit 类上的 update 方法
-    //! 所有的挂载，更新都应该交给对应的Component来管理
-    this.unit.update(null, partialState);
+    //! 调用组件 unit 类上的 update 方法来进行更新
+    // 参数1:新元素,参数2:新状态
+    this._currentUnit.update(null, partialState);
   }
 }
 export default Component;
