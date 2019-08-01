@@ -1,3 +1,11 @@
+// 疑问
+// let lastIndex = 0; //! 记录上一个已经确定位置的索引. 怎么比较,记录,更新,发挥作用的
+
+// tips
+// 把各种需要用到的数据全部缓存在this上
+// update全部是由自定义组件的staState引起的
+// domDiff的补丁包是用于描述同级children元素的位置变化的
+
 // 私有属性
 // Unit 实例私有属性(this指向unit实例)
 // this._reactId 元素reactId(含层级结构)
@@ -8,6 +16,7 @@
 
 import $ from 'jquery';
 import {ReactElement} from "./element";
+import types from './types';
 
 let diffQueue = [];// 差异队列(先比较,比较完成后才更新)
 let updateDepth = 0; // 更新级别
@@ -20,7 +29,7 @@ class Unit {
     this._currentElement = element; // 缓存当前组件的虚拟DOM实例
     // element的 props 如果应用于 dom 元素则作用于其属性,如果应用于自定义组件则充当起 props.
   }
-  getHtmlString(reactId) {
+  getHtmlString(reactId) { // 组件最终要挂载到页面的html字符串
     throw new Error("此方法不能被直接调用!")
   }
 }
@@ -30,9 +39,11 @@ class TextUnit extends Unit {
     this._reactId = reactId; // 缓存组件的react-id
     return `<span data-reactid="${this._reactId}">${this._currentElement}</span>`;
   }
-  //! 接收到新的更新请求
-  // 参数1:新元素,参数2:新状态
-  // 自定义类传第二个参数，原生和text类传第一个参数，因为他们没有状态
+  /** 文本节点更新:只需对比新旧内容是否一致
+   * 原生DOM和文本组件只传递第一个参数，因为他们没有state
+   * @param {Object} nextReactElement 新的虚拟DOM
+   * @param {Object} partialState 部分更新的的state
+   */
   update(nextElement) {
     // 判断新旧两个文本是否一致,不一致则更新
     if (this._currentElement !== nextElement) {
@@ -73,6 +84,7 @@ class NativeUnit extends Unit {
         let children = props.children || [];
         childString = children.map((ele, idx) => {
           let childUnitInstance = createReactUnit(ele); // 根据虚拟 DOM 创建 unit 实例
+          childUnitInstance._mountIndex = idx;//! 子元素的挂载索引,用来表明当前元素在父节点中的索引位置
           this._renderedChildrenUnits.push(childUnitInstance);
           // 子节点reactid= 自身节点+.+idx
           return childUnitInstance.getHtmlString(`${this._reactId}.${idx}`);
@@ -82,67 +94,131 @@ class NativeUnit extends Unit {
     }
     return tagStart + ">" + childString + tagEnd;
   }
-  // 虚拟DOM节点更新方法,只关注于属性有无变化.
+  /** 虚拟DOM更新:只关注自身及其子元素属性有无变化.
+   * 原生DOM和文本组件只传递第一个参数，因为他们没有state
+   * @param {Object} nextReactElement 新的虚拟DOM
+   * @param {Object} partialState 部分更新的的state
+   */
   update(nextElement) {
     console.log(nextElement)
     // this._currentElement = nextElement; // 重置 element
     let oldProps = this._currentElement.props; //旧props
     let newProps = nextElement.props; // 新props
     this.updateDOMProperties(oldProps, newProps); // 更新当前 DOM 的属性
-    this.updateChildren(newProps.children); //! 递归更新子元素(children)
+    this.updateChildren(newProps.children); //! 递归更新children,并制作补丁包
   }
   /** 更新子元素 children(对比新旧虚拟 DOM集合)
    * @param {Array} newChildrenElements 新children集合
    */
   updateChildren(newChildrenElements) {
     this.diff(newChildrenElements);
+    console.log(diffQueue);
+
   }
-  /** 对子元素数组进行 diff 比较
-   * !不考虑属性的增/修/删(需要补丁包)
+  /** 记录同级元素数组的elementDiff情况,制作补丁包(inster/move/remove)
    * @param {Array} newChildrenElements 
    */
   diff(newChildrenElements) {
-    // 构建oldChildrenUnit集合,用于判断新元素在旧元素中是否存在
+    //1. 构建oldChildrenUnit集合,用于判断新虚拟DOM能否继续使用旧元素的unit实例
     let oldChildrenUnitMap = this.getChildrenUnitMap(this._renderedChildrenUnits);
-    // 获取newChildren对应的Unit集合,并更新DOM
-    let newChildren = this.getNewChildren(oldChildrenUnitMap, newChildrenElements);
+    //2. 获取newChildren对应的Unit集合(尽量复用旧元素的unit),并更新DOM
+    let {newChildrenUnits, newChildrenUnitMap} = this.getNewChildrenUnits(oldChildrenUnitMap, newChildrenElements);
+    //!3. 记录上一个已经确定位置的索引. 
+    let lastIndex = 0;
+    let $ReactDOM = $(`[data-reactid="${this._reactId}"]`); // 记录父节点DOM对象
+    //4. 遍历newChildrenUnits集合,记录elementDiff变化(inster,move)
+    for (let i = 0; i < newChildrenUnits.length; i++) {
+      const newUnit = newChildrenUnits[i];
+      let newKey = (newUnit._currentElement.props && newUnit._currentElement.props.key) || i.toString();
+      let oldUnit = oldChildrenUnitMap[newKey];
+
+      if (oldUnit === newUnit) {//!4.1 新unit在旧unit中存在(move补丁)
+        //4.1.1 如果挂载点索引小于lastIndex则向后位移到i(move补丁)
+        if (oldUnit._mountIndex < lastIndex) {
+          diffQueue.push({ // move补丁
+            type: types.MOVE,
+            parentId: this._reactId,
+            parentNode: $ReactDOM,
+            fromIndex: oldUnit._mountIndex,
+            toIndex: i,
+          });
+        }
+        // 更新lastIndex为mountIndex和lastIndex的较大值
+        lastIndex = Math.max(lastIndex, oldUnit._mountIndex);
+      } else { //!4.2 newUnit在oldUnit中不存在(inster补丁)
+        // debugger
+        diffQueue.push({ // insert补丁
+          type: types.INSERT,
+          parentId: this._reactId,
+          parentNode: $ReactDOM,
+          fromIndex: lastIndex,
+          // fromIndex: oldUnit._mountIndex,
+          toIndex: i,
+          getHtmlString: newUnit.getHtmlString(`${this._reactId}.{i}`)
+        });
+      }
+      newUnit._mountIndex = i; // 更新newUnit的挂载点位置
+    }
+    //5. 遍历oldChildrenUnits集合,记录elementDiff变化(remove)
+    for (const oldKey in oldChildrenUnitMap) {
+      let oldChild = oldChildrenUnitMap[oldKey];
+      //5.1 如果新集合中不存在旧unit,则添加remove补丁
+      if (!newChildrenUnitMap.hasOwnProperty(oldKey)) {
+        diffQueue.push({ //remove补丁
+          type: types.REMOVE,
+          parentId: this._reactId,
+          parentNode: $ReactDOM,
+          fromIndex: oldChild._mountIndex,
+        })
+      }
+    }
   }
   /** 根据虚拟 DOM 元素集合获取element元素集合(Object)
    * !用于新DOM元素diff
    * @param {Array} children 虚拟 DOM 集合
    */
   getChildrenUnitMap(childrenUnitAry = []) {
-    let childrenMap = {};
+    let childrenUnitMap = {};
     for (let i = 0; i < childrenUnitAry.length; i++) {
       //! 获取unit对应的虚拟DOM上的key属性
       let unit = childrenUnitAry[i];
       let key = (unit._currentElement.props && unit._currentElement.props.key) || i.toString();
-      childrenMap[key] = unit;
+      childrenUnitMap[key] = unit;
     }
-    return childrenMap;
+    return childrenUnitMap;
   }
-  /** 获取新的虚拟DOM数组,并更新DOM
+  /** 获取新的虚拟DOM数组(不记录key)和虚拟DOMMap(记录key),并更新DOM
    * !只考虑元素属性变化,不考虑元素自身的增/删/位移(通过补丁包解决)
    * @param {Object} oldChildrenUnitMap 旧children虚拟 DOM
    * @param {Array} newChildrenElementAry 新children 虚拟 DOM
    */
-  getNewChildren(oldChildrenUnitMap, newChildrenElementAry) {
-    let newChildren = [];
-    // 以新虚拟domAry为基准,获取新虚拟domUnit集合
+  getNewChildrenUnits(oldChildrenUnitMap, newChildrenElementAry) {
+    let newChildrenUnits = []; // 记录childrenUnit数组(不保留key)
+    let newChildrenUnitMap = {};// 记录childrenUnitMap(保留原始key)
+    //* 以新虚拟domAry为基准,获取新虚拟dom的Unit集合
     newChildrenElementAry.forEach((newElement, idx) => {
-      let newKey = (newElement.props && newElement.props.key) || idx.toString(); //! 新元素的 key
-      let oldChild = oldChildrenUnitMap[newKey];//尝试从老Unit集合中获取unit实例
-      let oldElement = oldChild && oldChild._currentElement; //老虚拟DOM实例
-      // 比较新旧虚拟DOM,看是否需深度对比
+      //1. 获取新虚拟DOM的key
+      let newKey = (newElement.props && newElement.props.key) || idx.toString();
+      //2. 根据newKey尝试从老Unit集合中获取unit实例
+      let oldChild = oldChildrenUnitMap[newKey];
+      //3. 如果找到unit实例的话,获取挂载在其上的旧虚拟DOM
+      let oldElement = oldChild && oldChild._currentElement;
+      //4. 比较新旧虚拟DOM,看是否需深度对比
       if (shouldDeepCompare(oldElement, newElement)) {
-        oldChild.update(newElement); //! 交由子元素进行深度比较更新(可能递归)
-        newChildren.push(oldChild);// 复用旧的unit
-      } else { // 无需深度对比,构建新的unit对象
-        let unit = createReactUnit(newElement);
-        newChildren.push(unit);//构建新的unit对象
+        //!4.1 交由子元素进行深度比较更新(可能递归)
+        oldChild.update(newElement);
+        //4.2 复用旧的unit实例
+        newChildrenUnits.push(oldChild);
+        newChildrenUnitMap[newKey] = oldChild;
+      } else {
+        //5. 无需深度对比,构建新的unit对象
+        //5.1 构建新的unit对象
+        let newUnit = createReactUnit(newElement);
+        newChildrenUnits.push(newUnit);
+        newChildrenUnitMap[newKey] = newUnit;
       }
     });
-    return newChildren;
+    return {newChildrenUnits, newChildrenUnitMap};
   }
   /** 对比新旧props更新真实DOM的属性
    * @param {object} oldProps 旧 props
@@ -160,25 +236,19 @@ class NativeUnit extends Unit {
     }
     // 2.循环newProps集合,更新DOM属性,重新绑定DOM事件
     for (propKey in newProps) {
-      //2.1 children较为复杂,单独处理
-      if (propKey === 'children') continue;
-      //2.2 重新绑定的DOM事件
-      else if (/^on[A-Za-z]/.test(propKey)) {
+      if (propKey === 'children') continue;//2.1 children较为复杂,单独处理
+      else if (/^on[A-Za-z]/.test(propKey)) {//2.2 重新绑定的DOM事件
         let eventType = propKey.slice(2).toLowerCase();
         $(document).delegate(`[data-reactid="${this._reactId}"]`, `${eventType}.${this._reactId}`, newProps[propKey]);
         continue;
       }
-      //2.3 处理class
-      else if (propKey === "className") {
+      else if (propKey === "className")//2.3 处理class
         $ReactDOM.attr('class', newProps[propKey]);
-      }
-      //2.4 处理style
-      else if (propKey === "style") {
+      else if (propKey === "style") {//2.4 处理style
         for (const [attr, value] of Object.entries(newProps[propKey])) {
           $ReactDOM.css(attr, value);
         }
-        //2.5 更新DOM对象的常规属性
-      } else
+      } else //2.5 更新DOM对象的常规属性
         $ReactDOM.prop(propKey, newProps[propKey]);
     }
   }
@@ -186,7 +256,7 @@ class NativeUnit extends Unit {
 // 子类:自定义React组件
 // 例如: React.createElement(Counter, { name: "计数器" });
 class ComponsiteUnit extends Unit {
-  // ! 自定义组件渲染的内容是由其render方法的返回值决定的(虚拟 DOM)
+  // ! 自定义组件渲染内容是由其render()返回的虚拟DOM决定的
   getHtmlString(reactId) {
     this._reactId = reactId;
     let {type: Component, props} = this._currentElement;
@@ -205,45 +275,48 @@ class ComponsiteUnit extends Unit {
     let renderMarkUp = renderUnitInstance.getHtmlString(this._reactId);
     // 5.注册在html追加到页面时的钩子函数(在React.render函数中),在其中执行生命周期
     $(document).on('mounted', () => {
-      // lifeCycle componentDidMount
+      //5.1 lifeCycle componentDidMount
       this._componentInstance.componentDidMount && this._componentInstance.componentDidMount();
     })
     return renderMarkUp;
   }
 
-  //! 接收到新的更新请求
-  // 参数1:新元素,参数2:新状态
-  // 自定义类传第二个参数，原生和text类传第一个参数，因为他们没有状态
-  update(nextElement, partialState) {
+  /** 自定义组件更新
+   * 原生DOM和文本组件只传递第一个参数，因为他们没有state
+   * 自定义类一般只传第二个参数,有时也会传递第一个参数
+   * @param {Object} nextReactElement 新的虚拟DOM
+   * @param {Object} partialState 部分更新的的state
+   */
+  update(nextReactElement, partialState) {
     //1. 如果接收了新的元素，就使用新的element否则用旧的
-    this._currentElement = nextElement || this._currentElement;
-    //2. 把新的状态合并到老的实例的状态上,并更新到组件实例的 state 上.
+    this._currentElement = nextReactElement || this._currentElement;
+    //2. 把要更新的state合并到this.state上
     let nextState = this._componentInstance.state = Object.assign(this._componentInstance.state, partialState);
     let nextProps = this._currentElement.props; // 获取新 props.
-
-    // lifeCycle shouldComponentUpdate
+    //3. lifeCycle shouldComponentUpdate
     if (this._componentInstance.shouldComponentUpdate && !this._componentInstance.shouldComponentUpdate(nextProps, nextState))
       return;
-    //! 下面要进行比较更新
-    // lifeCycle componentWillUpdate
+    //4. lifeCycle componentWillUpdate
     this._componentInstance.componentWillUpdate && this._componentInstance.componentWillUpdate(nextProps, nextState);
-    //3. 获取上次render返回的虚拟DOM元素
+
+    //! 下面要进行比较更新
+    //5. 获取上次render返回的虚拟DOM
     let oldRenderVirtualDOM = this._renderedUnitInstance._currentElement;
-    //4. 根据新的state和props获取新的虚拟DOM元素
+    //6. 根据新的state和props获取新的虚拟DOM
     let newRenderVirtualDOM = this._componentInstance.render();
-    //5. 对比新旧两个虚拟DOM对象看是否需要深度对比(类型是否一致)
+    //7. 对比新旧两个虚拟DOM对象看是否需要深度对比
+    //7.1 需要深度对比
     if (shouldDeepCompare(oldRenderVirtualDOM, newRenderVirtualDOM)) {
-      //* 5.1 需要深度对比(自身不对比,交由render的unit实例自行比较
-      //! 最终会在文本/原生DOM两类Unit上进行DIff
+      //7.1.1 自身不对比,交由render的unit实例自行比较,最终会由文本/原生DOM的Unit进行diff-update
       this._renderedUnitInstance.update(newRenderVirtualDOM);
-      // lifeCycle componentDidUpdate 更新完成
+      //7.1.2 lifeCycle componentDidUpdate 更新完成
       this._componentInstance.componentDidUpdate && this._componentInstance.componentDidUpdate();
-    } else { //5.2 不需要深度对比,删除旧的,重建新的
-      //5.2.1 根据新的虚拟DOM创建对应的Unit实例,并更新this._renderedUnitInstance
+    } else { //7.2 不需要深度对比,直接删除重建
+      //7.2.1 根据新虚拟DOM创建新Unit实例,并更新this._renderedUnitInstance
       this._renderedUnitInstance = createReactUnit(newRenderVirtualDOM);
-      //5.2.2 返回新的Unit实例对应的html字符串
+      //7.2.2 返回新Unit实例对应的html字符串
       let newHtmlString = this._renderedUnitInstance.getHtmlString(this._reactId);
-      //5.2.3 用新的html字符串替换原有的html字符串
+      //7.2.3 用新的html字符串替换原有的html字符串
       $(`[data-reactid="${this._reactId}"]`).replaceWith(newHtmlString);
     }
   }
@@ -254,15 +327,14 @@ class ComponsiteUnit extends Unit {
  * @param {Object} newElement 新虚拟DOM
  */
 function shouldDeepCompare(oldElement, newElement) {
-  if (!oldElement || !newElement)
-    return false; // 任何一方为空,不用深度比较.
+  // 任何一方为空,不用深比较.
+  if (!oldElement || !newElement) return false;
   let oldType = typeof oldElement;
   let newType = typeof newElement;
-  // 如果是文本/数组类型,则直接.
-  if ((oldType === "string" || oldType === "number") && (newType === "string" || newType === "number")) {
+  // 如果是文本/数组类型,进行深比较.
+  if ((oldType === "string" || oldType === "number") && (newType === "string" || newType === "number"))
     return true;
-  }
-  // 如果是原生/自定义类型则判断类型是否相同,相同则进行深度对比.
+  // 如果是原生/自定义类型则判断类型是否相同,相同则进行深比较.
   else if (oldElement instanceof ReactElement && newElement instanceof ReactElement)
     return oldElement.type === newElement.type;
   return false;
