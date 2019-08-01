@@ -5,6 +5,8 @@
 // 把各种需要用到的数据全部缓存在this上
 // update全部是由自定义组件的staState引起的
 // domDiff的补丁包是用于描述同级children元素的位置变化的
+// 整颗treeDiff完成后就可以直接打补丁了
+// setState 是计算前后state差异,时机不同调用不同的
 
 // 私有属性
 // Unit 实例私有属性(this指向unit实例)
@@ -111,9 +113,56 @@ class NativeUnit extends Unit {
    * @param {Array} newChildrenElements 新children集合
    */
   updateChildren(newChildrenElements) {
+    updateDepth++; // 更新diff层级
     this.diff(newChildrenElements);
     console.log(diffQueue);
+    updateDepth--;
+    if (updateDepth === 0) {
+      console.log("应用补丁包")
+      this.patch(diffQueue);//应用补丁包
+      diffQueue = [];//清空补丁包
+    }
+  }
+  //! 根据补丁包打补丁应用更新
+  patch(diffQueue) {
+    let deleteChildren = [],//存放要删除的节点
+      deleteMap = {};//存放待删除DOM节点集合(用于move补丁时可以复用该DOM节点)
+    // 1.应用move/remove补丁(删除DOM元素).
+    for (let i = 0; i < diffQueue.length; i++) {
+      const difference = diffQueue[i];// 获取差异
+      // 1.1 依据move/remove补丁包,将要删除的元素缓存到集合中
+      if (difference.type === types.MOVE || difference.type === types.REMOVE) {
+        let fromIndex = difference.fromIndex;
+        let oldChild = $(difference.parentNode.children().get(fromIndex));
+        deleteMap[fromIndex] = oldChild;
+        deleteChildren.push(oldChild);
+      }
+    }
+    // 1.2 将待删除dom节点从真实domTree中删除.
+    $.each(deleteChildren, (idx, item) => $(item).remove());
 
+    //2. 应用insert/move补丁,move时复用旧的DOM节点,insert时重新创建dom节点
+    for (let i = 0; i < diffQueue.length; i++) {
+      const difference = diffQueue[i];
+      switch (difference.type) {
+        case types.INSERT://2.1 创建新的DOM节点,并将其追加到children的指定索引位置
+          this.insertChildAt(difference.parentNode, difference.toIndex, difference.getHtmlString);
+          break;
+        case types.MOVE: //2.2 从已删除集合中取出DOM元素,追加到新索引位置
+          let node = deleteMap[difference.fromIndex];
+          this.insertChildAt(difference.parentNode, difference.toIndex, node);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  // 将html插入到指定索引
+  insertChildAt(parentNode, index, htmlString) {
+    let newNode = $(htmlString);// 将htmlStr转为node对象
+    // 看指定索引位置上是否有元素.如果有则插入到当前元素之前,如果没有则追加到父元素下.
+    let oldChild = parentNode.children().get(index);
+    oldChild ? newNode.insertBefore(oldChild) : newNode.appendTo(parentNode);
   }
   /** 记录同级元素数组的elementDiff情况,制作补丁包(inster/move/remove)
    * @param {Array} newChildrenElements 
@@ -146,13 +195,20 @@ class NativeUnit extends Unit {
         // 更新lastIndex为mountIndex和lastIndex的较大值
         lastIndex = Math.max(lastIndex, oldUnit._mountIndex);
       } else { //!4.2 newUnit在oldUnit中不存在(inster补丁)
-        // debugger
-        diffQueue.push({ // insert补丁
+        if (oldUnit) { //4.2.1 应对新旧unit的类型不一致的情况 
+          diffQueue.push({ // remove补丁
+            type: types.REMOVE,
+            parentId: this._reactId,
+            parentNode: $ReactDOM,
+            fromIndex: oldUnit._mountIndex,
+          });
+          $(document).undelegate(`.${oldUnit._reactId}`);// 取消待删除DOM节点的事件委托
+        }
+        diffQueue.push({ //4.2.2 insert补丁
           type: types.INSERT,
           parentId: this._reactId,
           parentNode: $ReactDOM,
           fromIndex: lastIndex,
-          // fromIndex: oldUnit._mountIndex,
           toIndex: i,
           getHtmlString: newUnit.getHtmlString(`${this._reactId}.{i}`)
         });
