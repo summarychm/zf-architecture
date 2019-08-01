@@ -5,6 +5,7 @@
 // 把各种需要用到的数据全部缓存在this上
 // update全部是由自定义组件的staState引起的
 // domDiff的补丁包是用于描述同级children元素的位置变化的
+// 在制作insert和remove补丁时,应该将该虚拟DOM对应的unit一并更新,unit要和虚拟DOM一一对应.
 // 整颗treeDiff完成后就可以直接打补丁了
 // setState 是计算前后state差异,时机不同调用不同的
 
@@ -102,10 +103,10 @@ class NativeUnit extends Unit {
    * @param {Object} partialState 部分更新的的state
    */
   update(nextElement) {
-    console.log(nextElement)
     // this._currentElement = nextElement; // 重置 element
     let oldProps = this._currentElement.props; //旧props
     let newProps = nextElement.props; // 新props
+    // if(nextElement.type==="ul")debugger
     this.updateDOMProperties(oldProps, newProps); // 更新当前 DOM 的属性
     this.updateChildren(newProps.children); //! 递归更新children,并制作补丁包
   }
@@ -115,18 +116,18 @@ class NativeUnit extends Unit {
   updateChildren(newChildrenElements) {
     updateDepth++; // 更新diff层级
     this.diff(newChildrenElements);
-    console.log(diffQueue);
     updateDepth--;
     if (updateDepth === 0) {
-      console.log("应用补丁包")
-      this.patch(diffQueue);//应用补丁包
+      diffQueue.length && this.patch(diffQueue);//应用补丁包
       diffQueue = [];//清空补丁包
     }
   }
   //! 根据补丁包打补丁应用更新
   patch(diffQueue) {
+    console.log("应用补丁包", diffQueue)
     let deleteChildren = [],//存放要删除的节点
       deleteMap = {};//存放待删除DOM节点集合(用于move补丁时可以复用该DOM节点)
+    //! 采用二级结构,防止父子二级元素同时修改一索引导致子元素覆盖父元素
     // 1.应用move/remove补丁(删除DOM元素).
     for (let i = 0; i < diffQueue.length; i++) {
       const difference = diffQueue[i];// 获取差异
@@ -134,6 +135,8 @@ class NativeUnit extends Unit {
       if (difference.type === types.MOVE || difference.type === types.REMOVE) {
         let fromIndex = difference.fromIndex;
         let oldChild = $(difference.parentNode.children().get(fromIndex));
+        //! 将父元素的reactId作为一级key,自身索引作为二级key
+        if (!deleteMap[difference.parentId]) deleteMap[difference.parentId] = {};
         deleteMap[fromIndex] = oldChild;
         deleteChildren.push(oldChild);
       }
@@ -148,8 +151,8 @@ class NativeUnit extends Unit {
         case types.INSERT://2.1 创建新的DOM节点,并将其追加到children的指定索引位置
           this.insertChildAt(difference.parentNode, difference.toIndex, difference.getHtmlString);
           break;
-        case types.MOVE: //2.2 从已删除集合中取出DOM元素,追加到新索引位置
-          let node = deleteMap[difference.fromIndex];
+        case types.MOVE: //2.2 从已删除集合中取出DOM元素,追加到新索引位置(二级结构)
+          let node = deleteMap[difference.parentId][difference.fromIndex];
           this.insertChildAt(difference.parentNode, difference.toIndex, node);
           break;
         default:
@@ -202,7 +205,10 @@ class NativeUnit extends Unit {
             parentNode: $ReactDOM,
             fromIndex: oldUnit._mountIndex,
           });
-          $(document).undelegate(`.${oldUnit._reactId}`);// 取消待删除DOM节点的事件委托
+          //4.2.2 同时删除该节点对应unit对象
+          this._renderedChildrenUnits = this._renderedChildrenUnits.filter(child => child !== oldUnit);
+          //4.2.3 同时删除该节点的事件委托  
+          $(document).undelegate(`.${oldUnit._reactId}`);
         }
         diffQueue.push({ //4.2.2 insert补丁
           type: types.INSERT,
@@ -210,22 +216,26 @@ class NativeUnit extends Unit {
           parentNode: $ReactDOM,
           fromIndex: lastIndex,
           toIndex: i,
-          getHtmlString: newUnit.getHtmlString(`${this._reactId}.{i}`)
+          getHtmlString: newUnit.getHtmlString(`${this._reactId}.${i}`)
         });
       }
       newUnit._mountIndex = i; // 更新newUnit的挂载点位置
     }
     //5. 遍历oldChildrenUnits集合,记录elementDiff变化(remove)
     for (const oldKey in oldChildrenUnitMap) {
-      let oldChild = oldChildrenUnitMap[oldKey];
+      let oldUnit = oldChildrenUnitMap[oldKey];
       //5.1 如果新集合中不存在旧unit,则添加remove补丁
       if (!newChildrenUnitMap.hasOwnProperty(oldKey)) {
         diffQueue.push({ //remove补丁
           type: types.REMOVE,
           parentId: this._reactId,
           parentNode: $ReactDOM,
-          fromIndex: oldChild._mountIndex,
-        })
+          fromIndex: oldUnit._mountIndex,
+        });
+        //5.2 同时删除该节点对应unit对象
+        this._renderedChildrenUnits = this._renderedChildrenUnits.filter(child => child !== oldUnit);
+        //5.3 同时删除该节点的事件委托
+        $(document).undelegate(`.${oldUnit._reactId}`);
       }
     }
   }
@@ -272,6 +282,7 @@ class NativeUnit extends Unit {
         let newUnit = createReactUnit(newElement);
         newChildrenUnits.push(newUnit);
         newChildrenUnitMap[newKey] = newUnit;
+        this._renderedChildrenUnits[idx] = newUnit; //! 用新的unit替换掉旧的unit对象
       }
     });
     return {newChildrenUnits, newChildrenUnitMap};

@@ -1,4 +1,4 @@
-import React from "./react";
+// import React from "./react";
 // class Counter extends React.Component {
 //   constructor(props) {
 //     super(props);
@@ -33,34 +33,39 @@ import React from "./react";
 //   }
 // }
 
-class Counter extends React.Component{
-  constructor(props){
+import React from "./react";
+class Todos extends React.Component {
+  constructor(props) {
     super(props);
-    this.state = {odd:true};
+    this.state = {list: [], text: ''};
+    this.val = "";
   }
-  componentDidMount(){
-   setTimeout(()=>{
-    this.setState({odd:!this.state.odd});
-   },1000);
+  add() {
+    // if (this.state.text && this.state.text.length > 0) {
+      // this.setState({list: [...this.state.list, this.state.text], text: ''});
+    // }
+    this.setState({list: [...this.state.list, this.val]});
+    this.val="";
   }
-  render(){
-    if(this.state.odd){
-      return React.createElement('ul',{key:'wrapper'},
-        React.createElement('li',{key:'A'},'A'),
-        React.createElement('li',{key:'B'},'B'),
-        React.createElement('li',{key:'C'},'C'),
-        React.createElement('li',{key:'D'},'D'),
-      );
-    }
-    return React.createElement('ul',{key:'wrapper'},
-      React.createElement('li',{key:'A'},'A1'),
-      React.createElement('li',{key:'C'},'C1'),
-      React.createElement('li',{key:'B'},'B1'),
-      React.createElement('li',{key:'E'},'E1'),
-      React.createElement('li',{key:'F'},'F1')
-      );
+  onChange(event) {
+    // this.setState({text: event.target.value});
+    this.val = event.target.value;
+  }
+  onDel(index) {
+    this.state.list.splice(index, 1);
+    this.setState({list: this.state.list});
+  }
+  render() {
+    var createItem = (itemText, index) => {
+      return React.createElement("div", {}, itemText, React.createElement('button', {onClick: this.onDel.bind(this, index)}, 'X'));
+    };
+
+    var lists = this.state.list.map(createItem);
+    var input = React.createElement("input", {onKeyup: this.onChange.bind(this), value: this.state.text});
+    var button = React.createElement("button", {onClick: this.add.bind(this)}, 'Add')
+    var ul = React.createElement('ul', {}, ...lists)
+    return React.createElement('div', {}, input, button, ul);
   }
 }
-
-let element = React.createElement(Counter, {name: "计数器"});
-React.render(element, window.root);
+let todos = React.createElement(Todos);
+React.render(todos, window.root);

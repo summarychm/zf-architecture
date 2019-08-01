@@ -21,7 +21,7 @@ function render(element, container) {
   let markUp = unitInstance.getHtmlString(React.nextRootIndex);
   // 将html片段挂载到指定DOM元素上
   $(container).html(markUp);
-  //! 通知所有订阅 mounted 的组件,html已经追加到DOM中(各组件会订阅'mounted'事件)
+  //! 通知所有订阅 mounted 的组件,html已经追加到DOM中(各组件会订阅'mounted'事件,注册componentDidMount事件)
   $(document).trigger('mounted');
 }
 export default React;
