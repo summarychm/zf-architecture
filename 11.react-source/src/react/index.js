@@ -12,6 +12,8 @@ let React = {
   createElement, 
   Component 
 }
+
+// render -> createReactUnit -> ReactXXXUnit -> getMarkup(string)
 //将虚拟DOM渲染到真实DOM上
 function render(element, container) {
   //为了便于扩展,定义了工厂方法,根据传入的 element 类型返回不同的组件实例

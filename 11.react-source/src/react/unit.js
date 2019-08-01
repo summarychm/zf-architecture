@@ -1,15 +1,4 @@
-// 疑问
-// let lastIndex = 0; //! 记录上一个已经确定位置的索引. 怎么比较,记录,更新,发挥作用的
 
-// tips
-// 把各种需要用到的数据全部缓存在this上
-// update全部是由自定义组件的staState引起的
-// domDiff的补丁包是用于描述同级children元素的位置变化的
-// 在制作insert和remove补丁时,应该将该虚拟DOM对应的unit一并更新,unit要和虚拟DOM一一对应.
-// 整颗treeDiff完成后就可以直接打补丁了
-// setState 是计算前后state差异,时机不同调用不同的
-
-// 私有属性
 // Unit 实例私有属性(this指向unit实例)
 // this._reactId 元素reactId(含层级结构)
 // this._currentElement 当前虚拟DOM元素实例
@@ -72,8 +61,9 @@ class NativeUnit extends Unit {
       if (/^on[A-Za-z]/.test(propKey)) {
         let eventType = propKey.slice(2).toLowerCase();
         //! 将事件委托到 document上,使用命名空间的方式,便于查找与移除操作.
-        $(document).delegate(`[data-reactid="${this._reactId}"]`, `${eventType}.${this._reactId}`, props[propKey]);
-
+        $(document).on(`${eventType}.${this._reactId}`,`[data-reactid="${this._reactId}"]`,props[propKey]);
+        // $(document).delegate(`[data-reactid="${this._reactId}"]`, `${eventType}.${this._reactId}`,props[propKey]);
+        //{"ceshi":{"k1":"v1"}}, 
       } else if (propKey === "className") {// 2.处理特殊的className属性
         tagStart += " class=" + props[propKey];
       } else if (propKey === "style") {// 3.处理特殊的style属性
@@ -306,7 +296,8 @@ class NativeUnit extends Unit {
       if (propKey === 'children') continue;//2.1 children较为复杂,单独处理
       else if (/^on[A-Za-z]/.test(propKey)) {//2.2 重新绑定的DOM事件
         let eventType = propKey.slice(2).toLowerCase();
-        $(document).delegate(`[data-reactid="${this._reactId}"]`, `${eventType}.${this._reactId}`, newProps[propKey]);
+        $(document).on(`${eventType}.${this._reactId}`,`[data-reactid="${this._reactId}"]`,  newProps[propKey]);
+        // $(document).delegate(`[data-reactid="${this._reactId}"]`, `${eventType}.${this._reactId}`, newProps[propKey]);
         continue;
       }
       else if (propKey === "className")//2.3 处理class
