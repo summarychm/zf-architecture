@@ -22,7 +22,7 @@ import "bootstrap/dist/css/bootstrap.css";
 
 ReactDOM.render(
 	<Provider store={store} >
-		<ConnectedRouter history={history}>
+		<HashRouter history={history}>
 			<>
 				<nav className="navbar navbar-inverse">
 					<div className="fluid-container">
@@ -56,7 +56,7 @@ ReactDOM.render(
 					</div>
 				</div>
 			</>
-		</ConnectedRouter>
+		</HashRouter>
 	</Provider>,
 	document.getElementById("root"),
 );
