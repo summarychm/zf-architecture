@@ -16,10 +16,9 @@ let React = {
 // render -> createReactUnit -> ReactXXXUnit -> getMarkup(string)
 //将虚拟DOM渲染到真实DOM上
 function render(element, container) {
-  //为了便于扩展,定义了工厂方法,根据传入的 element 类型返回不同的组件实例
-  //unit单元:用来负责渲染界面,将React元素转为可在页面上显示的html字符串
+  // 为了便于扩展,定义了工厂方法,根据传入的 element 类型返回不同的组件实例
   let unitInstance = createReactUnit(element);
-  //返回组件实例对应的 HTML 片段
+  // 返回组件实例对应的 HTML 片段
   let markUp = unitInstance.getHtmlString(React.nextRootIndex);
   // 将html片段挂载到指定DOM元素上
   $(container).html(markUp);

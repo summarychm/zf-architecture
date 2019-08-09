@@ -33,7 +33,7 @@ let transaction = new Transaction([{
   },
   close() {
     batchingStrategy.isBatchingUpdates = false;
-    batchingStrategy.batchedUpdateds();//开始批量更新,
+    batchingStrategy.batchedUpdateds();//! 开始批量更新,
   }
 }])
 // 改为兼容jquery的delegate
@@ -60,11 +60,12 @@ class Component {
     // 参数1:新元素,参数2:新状态
     // this._currentUnit.update(null, partialState);
   }
+  // 正式更新组件
   updateComponent() {
     let state = {}
     this._updater._pedingStates.forEach(partState => Object.assign(state, partState))
-    this._updater._pedingStates = [];
-    this._currentUnit.update(null, state);
+    this._updater._pedingStates = [];//清空暂存状态集合
+    this._currentUnit.update(null, state);//! 调用组件unit实例上的update方法,开始更新
   }
 }
 export default Component;
