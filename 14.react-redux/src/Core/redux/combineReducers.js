@@ -4,12 +4,13 @@ export default function combineReducers(reducers) {
   return function (state = {}, action) {
     let hashChanged = false, // 此次派发动作是否引起了状态的改变.
       nextState = {};
+    // 遍历所有的reduce,处理传入的action
     for (const [reducerKey, reduceFn] of Object.entries(reducers)) {
       let oldState = state[reducerKey],
         newState = reduceFn(oldState, action);
       nextState[reducerKey] = newState;
       hashChanged = hashChanged || newState !== oldState;
     }
-    return hashChanged ? nextState : state; //如果state未发生变化,则返回旧state
+    return hashChanged ? nextState : state; //如果state未发生变化,则返回旧state,用于diff
   }
 }
