@@ -8,7 +8,7 @@ export default function applyMiddleware(...middlewares) {
 			let dispatch = () => {throw new Error("不允许派发正在构建中的中间件!") };
 			// 构建给中间件使用的getStore和增强后的dispatch
 			const middlewaresAPI = {
-				getStore: store.getState,
+				getStore: store.getState,//最小开放策略,只给开发者提供getState和dispatch
 				// 调用最新增强的dispatch,用于应对级联派发action
 				dispatch: (...args) => dispatch(...args),
 			};

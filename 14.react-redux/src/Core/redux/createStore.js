@@ -49,7 +49,8 @@ export default function createStore(reducer, preloadedState, enhancer) {
 		}
 		return action; //返回派发的动作
 	}
-	dispatch({ type: "REDUX.INIT" });// store自身预先初始化
+	dispatch({ type: Symbol() });// store自身预先初始化
+	// dispatch({ type: "REDUX.INIT" });// store自身预先初始化
 	return {
 		dispatch,
 		subscribe,

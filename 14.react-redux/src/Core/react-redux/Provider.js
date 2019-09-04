@@ -6,7 +6,9 @@ export default class extends React.Component {
 	render() {
 		return (
 			// 将store传递给contextAPI,并渲染children
-			<ReactReduxContext.Provider value={{store:this.props.store}}>{this.props.children}</ReactReduxContext.Provider>
+			<ReactReduxContext.Provider value={{store: this.props.store}}>
+				{this.props.children}
+			</ReactReduxContext.Provider>
 		);
 	}
 }
