@@ -58,9 +58,9 @@ class Compiler {
   getSource(modulePath) {//读取文件,匹配loader
     let content = fs.readFileSync(modulePath, 'utf8');
     this.rules.forEach(function (rule, idx) {
-      //! 只处理use为数组,不处理fn的形式
-      let {test: reg, use} = rule;
+      let {test: reg, use} = rule;// reg:匹配规则,use:要调用的loader
       if (reg.test(modulePath)) {
+        // 从右向左依次调用所有loader,将pre的处理结果作为入参传给cur
         content = use.reduceRight(function (pre, cur, idx) {
           let preLoader = require(pre);
           let curLoader = require(cur);

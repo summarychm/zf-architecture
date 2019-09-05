@@ -32,7 +32,7 @@ console.log(str);`)
   
 		"./src/index.less":(function (module,exports,__webpack_require__){
       eval(`let style = document.createElement('style');
-style.innerHTML = "body {\n  background-color: #ce40c2;\n}\n";
+style.innerHTML = "body {\\n  background-color: #ce40c2;\\n}\\n";
 document.head.appendChild(style);`)
     }),
   
