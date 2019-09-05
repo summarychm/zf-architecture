@@ -1,0 +1,42 @@
+Arguments: 
+  /usr/local/Cellar/node/12.5.0/bin/node /usr/local/lib/node_modules/bin/yarn add less
+
+PATH: 
+  /Users/liuhuan/.rvm/gems/ruby-2.5.1/bin:/Users/liuhuan/.rvm/gems/ruby-2.5.1@global/bin:/Users/liuhuan/.rvm/rubies/ruby-2.5.1/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/aria2/bin:/Applications/Wireshark.app/Contents/MacOS:/Users/liuhuan/.rvm/gems/ruby-2.5.1/bin:/Users/liuhuan/.rvm/gems/ruby-2.5.1@global/bin:/Users/liuhuan/.rvm/rubies/ruby-2.5.1/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin:/usr/local/lib/node_modules/bin:/Users/liuhuan/.rvm/bin:/Users/liuhuan/Library/Android/sdk/tools:/Users/liuhuan/Library/Android/sdk/tools/bin:/Users/liuhuan/Library/Android/sdk/platform-tools:/Users/liuhuan/Library/Android/sdk/emulator:/usr/local/bin:/usr/local/lib/node_modules/bin:/Users/liuhuan/.rvm/bin:/Users/liuhuan/Library/Android/sdk/tools:/Users/liuhuan/Library/Android/sdk/tools/bin:/Users/liuhuan/Library/Android/sdk/platform-tools:/Users/liuhuan/Library/Android/sdk/emulator
+
+Yarn version: 
+  1.17.3
+
+Node version: 
+  12.6.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  SyntaxError: /Users/liuhuan/Documents/InAction/webpack-quickstart/package.json: Unexpected token } in JSON at position 175
+      at JSON.parse (<anonymous>)
+      at /usr/local/lib/node_modules/lib/node_modules/yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/usr/local/lib/node_modules/lib/node_modules/yarn/lib/cli.js:304:30)
+      at /usr/local/lib/node_modules/lib/node_modules/yarn/lib/cli.js:315:13
+
+npm manifest: 
+  {
+    "name": "webpack-quickstart",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
