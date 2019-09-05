@@ -6,4 +6,5 @@ let config = require(path.resolve("webpack.config.js"));
 // 2.创建编译类实例
 let Compiler = require("../lib/Compiler");
 let compiler = new Compiler(config);
+compiler.hooks.entryOption.call();
 compiler.run();// 3.运行编译

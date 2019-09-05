@@ -1,6 +1,7 @@
 let fs = require('fs');
 let path = require('path');
 let ejs = require("ejs");
+let {SyncHook} = require("tapable");
 
 let babylon = require("babylon");
 let types = require("@babel/types");
@@ -20,14 +21,32 @@ class Compiler {
     this.entry = config.entry;//入口文件路径
     this.cwd = process.cwd();//工作路径(运行路径)
     this.rules = config.module.rules || [];// loader规则
+    this.hooks = {
+      entryOption: new SyncHook(),// 参数配置
+      compile: new SyncHook(), // 编译开始
+      afterCompile: new SyncHook(),// 编译完毕
+      afterPlugins: new SyncHook(),// 插件执行完毕
+      run: new SyncHook(), // 编译开始
+      emit: new SyncHook(), // 写入文件完毕
+      done: new SyncHook(), // 全部执行完毕
+    }
+    this.plugins = this.config.plugins;
+    // 依次执行所有的plugin,这里的apply是插件方法,而不是改变this指向
+    if (Array.isArray(this.plugins))
+      this.plugins.forEach(plugin => plugin.apply(this));
+    this.hooks.afterPlugins.call();
   }
   run() { // 执行编译
+    this.hooks.run.call();
     let pathStr = path.resolve(this.cwd, this.entry);
-    //! 如何处理mpa?
+    this.hooks.compile.call();
     // 执行编译并创建模块的依赖关系(当前为主入口)
     this.buildModule(pathStr, true);
+    this.hooks.afterCompile.call();
     // 将编译好的文件写入到output
     this.emitFile();
+    this.hooks.emit.call();
+    this.hooks.done.call();
   }
   buildModule(modulePath, isEntry) {// 创建模块依赖管理
     let source = this.getSource(modulePath);// 模块内容

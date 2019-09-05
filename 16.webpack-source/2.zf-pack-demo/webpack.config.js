@@ -1,5 +1,7 @@
 let path = require("path");
 
+let PluginA = require("./plugin/pluginA.js");
+
 module.exports = {
   entry: "./src/index.js",
   output: {
@@ -15,5 +17,6 @@ module.exports = {
         ]
       },
     ]
-  }
+  },
+  plugins: [new PluginA({k1:"k1"})]
 }
