@@ -19,6 +19,7 @@ class Compiler {
     this.modules = {};
     this.entry = config.entry;//入口文件路径
     this.cwd = process.cwd();//工作路径(运行路径)
+    this.rules = config.module.rules || [];// loader规则
   }
   run() { // 执行编译
     let pathStr = path.resolve(this.cwd, this.entry);
@@ -54,8 +55,20 @@ class Compiler {
     // this.assets[outPath] = code;// 借助于ejs
     fs.writeFileSync(outPath, code);
   }
-  getSource(modulePath) {//读取文件
-    return fs.readFileSync(modulePath, 'utf8');
+  getSource(modulePath) {//读取文件,匹配loader
+    let content = fs.readFileSync(modulePath, 'utf8');
+    this.rules.forEach(function (rule, idx) {
+      //! 只处理use为数组,不处理fn的形式
+      let {test: reg, use} = rule;
+      if (reg.test(modulePath)) {
+        content = use.reduceRight(function (pre, cur, idx) {
+          let preLoader = require(pre);
+          let curLoader = require(cur);
+          return curLoader(preLoader(content));
+        });
+      }
+    });
+    return content;
   }
   // 递归解析源码(借助于babel解析出的AST,更改源码)
   //修改1: 把require改为__webpack__require
