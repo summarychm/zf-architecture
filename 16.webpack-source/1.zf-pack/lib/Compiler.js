@@ -76,15 +76,20 @@ class Compiler {
   }
   getSource(modulePath) {//读取文件,匹配loader
     let content = fs.readFileSync(modulePath, 'utf8');
+    let that = this;
     this.rules.forEach(function (rule, idx) {
       let {test: reg, use} = rule;// reg:匹配规则,use:要调用的loader
       if (reg.test(modulePath)) {
         // 从右向左依次调用所有loader,将pre的处理结果作为入参传给cur
-        content = use.reduceRight(function (pre, cur, idx) {
-          let preLoader = require(pre);
-          let curLoader = require(cur);
-          return curLoader(preLoader(content));
-        });
+        let i = use.length - 1;
+        function next() {
+          if (i < 0) return; //边界处理
+          let loader = (use[i].loader) ? require(use[i].loader) : require(use[i]);
+          content = loader.call(that, content);
+          i--;
+          next();
+        }
+        next();
       }
     });
     return content;
