@@ -15,8 +15,8 @@ module.exports = {
     rules: [{
       test: /\.(png|jpe?g|svg)$/,
       use: [{
-        loader: path.resolve(__dirname, 'loader', "file-loader.js"),
-        options: {name: 'image/[name].[ext]'}
+        loader: path.resolve(__dirname, 'loader', "url-loader.js"),
+        options: {limit: 0 * 1024, name: 'image/[name].[ext]'}
       }]
     }, {
       test: /\.js$/,

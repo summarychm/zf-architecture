@@ -179,7 +179,7 @@ document.body.appendChild(logoImg);
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports="2b17fe962e255d365c085d0fcc1dcca9.jpg"
+module.exports="image/img.jpg"
 
 /***/ }),
 
@@ -190,7 +190,7 @@ module.exports="2b17fe962e255d365c085d0fcc1dcca9.jpg"
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports="d19378a95ebe6b15d5ddea281138dcf4.svg"
+module.exports="image/logo.svg"
 
 /***/ })
 

@@ -13,5 +13,5 @@
 所用到的 package
 
 ```shell
-yarn add babylon @babel/traverse @babel/types @babel/generator ejs tapable loader-utils schema-utils
+yarn add babylon @babel/traverse @babel/types @babel/generator ejs tapable loader-utils schema-utils mime
 ```
