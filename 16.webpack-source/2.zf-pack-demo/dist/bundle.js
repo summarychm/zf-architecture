@@ -93,10 +93,7 @@
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-var b = __webpack_require__(/*! ./b */ "./src/common/b.js");
+/**测试banner**/let b = __webpack_require__(/*! ./b */ "./src/common/b.js");
 
 module.exports = "a" + b;
 
@@ -107,12 +104,9 @@ module.exports = "a" + b;
   !*** ./src/common/b.js ***!
   \*************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-
-
-module.exports = "b";
+/**测试banner**/module.exports="b";
 
 /***/ }),
 
@@ -123,43 +117,23 @@ module.exports = "b";
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
+/**测试banner**/
 __webpack_require__(/*! ./index.less */ "./src/index.less");
+let a = __webpack_require__(/*! ./common/a.js */ "./src/common/a.js");
 
-var a = __webpack_require__(/*! ./common/a.js */ "./src/common/a.js");
+let str = "str=" + a;
+console.log(str)
 
-var str = "str=" + a;
-console.log(str);
-
-var Animal =
-/*#__PURE__*/
-function () {
-  function Animal(type) {
-    _classCallCheck(this, Animal);
-
+class Animal {
+  constructor(type) {
     this.type = type;
   }
-
-  _createClass(Animal, [{
-    key: "getType",
-    value: function getType() {
-      console.log("type", this.type);
-    }
-  }]);
-
-  return Animal;
-}();
-
-var dog = new Animal("小狗");
-dog.getType();
+  getType() {
+    console.log("type", this.type);
+  }
+}
+const dog=new Animal("小狗")
+dog.getType()
 
 /***/ }),
 
