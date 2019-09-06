@@ -114,9 +114,15 @@ module.exports = "a" + b;
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _public_img_jpg__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./public/img.jpg */ "./src/public/img.jpg");
+/* harmony import */ var _public_img_jpg__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_public_img_jpg__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _public_logo_svg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./public/logo.svg */ "./src/public/logo.svg");
+/* harmony import */ var _public_logo_svg__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_public_logo_svg__WEBPACK_IMPORTED_MODULE_1__);
 /**测试banner**/
 __webpack_require__(/*! ./index.less */ "./src/index.less");
 let a = __webpack_require__(/*! ./common/a.js */ "./src/common/a.js");
@@ -132,8 +138,22 @@ class Animal {
     console.log("type", this.type);
   }
 }
-const dog=new Animal("小狗")
+const dog = new Animal("小狗")
 dog.getType()
+
+
+
+
+
+let imgImg = document.createElement('img');
+imgImg.src = _public_img_jpg__WEBPACK_IMPORTED_MODULE_0___default.a;
+document.body.appendChild(imgImg);
+let logoImg = document.createElement('img');
+logoImg.style="width:100px;height:100px;";
+logoImg.src = _public_logo_svg__WEBPACK_IMPORTED_MODULE_1___default.a;
+document.body.appendChild(logoImg);
+
+
 
 /***/ }),
 
@@ -149,6 +169,28 @@ dog.getType()
     style.innerHTML="body {\\n  background-color: #ce40c2;\\n}\\n";
     document.head.appendChild(style);
   
+
+/***/ }),
+
+/***/ "./src/public/img.jpg":
+/*!****************************!*\
+  !*** ./src/public/img.jpg ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports="2b17fe962e255d365c085d0fcc1dcca9.jpg"
+
+/***/ }),
+
+/***/ "./src/public/logo.svg":
+/*!*****************************!*\
+  !*** ./src/public/logo.svg ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports="d19378a95ebe6b15d5ddea281138dcf4.svg"
 
 /***/ })
 

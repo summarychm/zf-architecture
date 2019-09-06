@@ -14,6 +14,7 @@ function loader(source) {
   }
   validateOptions(schema, options, 'banner-loader');
   if (options.filename) {
+    this.addDependency(options.filename);// 将当前模板文件添加到weboack依赖中,文件更改重新编译
     fs.readFile(options.filename, 'utf8', function (err, data) {
       cb(err, `/**${data}**/${source}`);
     });
