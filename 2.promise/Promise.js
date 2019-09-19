@@ -8,7 +8,7 @@ class Promise {
     this.rejectCallBackFn = [];
     // 使用箭头函数避免this指向(指向promise实例)
     let resolve = value => {
-      // 只有在status还是padding时才可以更改status
+      //! 只有在status还是padding时才可以更改status
       if (Object.is(this.status, constant.pending)) {
         this.value = value;
         this.status = constant.fulfilled;
@@ -19,7 +19,7 @@ class Promise {
       if (Object.is(this.status, "pending")) {
         this.reason = value;
         this.status = constant.rejected;
-        this.rejectCallBackFn.forEach(fn => fn());
+        this.rejectCallBackFn.forEach(fn => fn(this.reason));
       }
     }
     try {
@@ -29,7 +29,7 @@ class Promise {
     }
   }
 
-  then(onfulfilled, onrejected) {
+  then(onfulfilled, onrejected=e=>e) {
     switch (this.status) {
       case constant.fulfilled:
         onfulfilled(this.value);

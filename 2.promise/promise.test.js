@@ -1,16 +1,16 @@
-// var Promise = require('./Promise');
+var Promise = require('./Promise');
+var fs = require("fs");
+function read(url) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(url, "utf8", (err, data) => {
+      if (err) reject(err);
+      resolve(data);
+    });
+  });
+}
 
-let promise = new Promise(function (resolve, reject) {
-  // resolve(123);
-  // reject(456);
-  setTimeout(() => {
-    resolve("成功")
-    // reject("失败")
-  }, 10);
+read("./step11.txt").then(data=>{
+  console.log("data",data);
+},function(e){
+  console.log(e)
 });
-console.log("begin");
-promise.then(function (value) {
-  console.log("success", value);
-}, function (reason) {
-  console.log("reason", reason);
-})
