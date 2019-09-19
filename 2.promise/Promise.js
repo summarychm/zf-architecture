@@ -115,4 +115,14 @@ class Promise {
     return promise2;
   }
 }
+
+// 暴露一个快捷方法,用于快速创建Promise实例和方便Promise测试
+Promise.defer = function () {
+  let dfd = {};
+  dfd.promise = new Promise((resolve, reject) => {
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
+  return dfd;
+}
 module.exports = Promise;
