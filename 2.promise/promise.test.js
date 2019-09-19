@@ -1,18 +1,18 @@
 var Promise = require('./Promise');
 var fs = require("fs");
 function read(url) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(url, "utf8", (err, data) => {
-      if (err) reject(err);
-      resolve(data);
-    });
+  let dfd = Promise.defer();
+  fs.readFile(url, "utf8", (err, data) => {
+    if (err) dfd.reject(err);
+    dfd.resolve(data);
   });
+  return dfd.promise;
 }
 
 read("./step1.txt").then(data => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve(new Promise((resolve,reject)=>{
+      resolve(new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(300)
         }, 0);

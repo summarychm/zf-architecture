@@ -35,6 +35,8 @@ class Promise {
 
     // 调用者code有了明确调用(resolve/reject).
     let resolve = value => {
+      // 兼容用户直接传入new Promise的写法,递归解析,向下传递
+      if (value instanceof Promise) return value.then(resolve, reject); 
       //! 只有在status是padding时才可以更改status(状态机)
       if (Object.is(this.status, constant.pending)) {
         this.value = value;
@@ -117,6 +119,7 @@ class Promise {
 }
 
 // 暴露一个快捷方法,用于快速创建Promise实例和方便Promise测试
+// 可以减少使用时的嵌套层数.延迟对象,类似于angular中的Q
 Promise.defer = function () {
   let dfd = {};
   dfd.promise = new Promise((resolve, reject) => {
