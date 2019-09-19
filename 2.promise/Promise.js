@@ -56,7 +56,7 @@ class Promise {
     }
   }
   // 处理promise实例的返回值(异步)
-  then(onfulfilled, onrejected = e => e) {
+  then(onfulfilled = f => f, onrejected = f => f) {
     let promise2 = new Promise((resolve, reject) => {
       switch (this.status) {
         case constant.fulfilled:

@@ -21,12 +21,7 @@ read("./step1.txt").then(data => {
   });
 }, function (e) {
   console.log("err1", e)
-}).then(data => {
-  console.log("data2", data)
-  return data;
-}, function (e) {
-  console.log("err2", e)
-}).then(data => {
+}).then().then(data => {
   console.log("data3", data)
 }, function (e) {
   console.log("err3", e)
