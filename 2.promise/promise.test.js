@@ -12,8 +12,11 @@ function read(url) {
 read("./step1.txt").then(data => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      // resolve(500)
-      reject(500)
+      resolve(new Promise((resolve,reject)=>{
+        setTimeout(() => {
+          resolve(300)
+        }, 0);
+      }));
     }, 0);
   });
 }, function (e) {

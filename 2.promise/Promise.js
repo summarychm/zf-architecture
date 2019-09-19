@@ -11,13 +11,13 @@ function resolvePromise(promise2, x, resolve, reject) {
     try {
       // 如果有then是一个方法,就认为x是一个promise
       if (typeof x.then === 'function') {
-        // 
+        // 调用x.then并将结果作为resolve的值返回
         x.then.call(x, y => {
-          resolve(y);
+          //! x.then的返回值y可能还是一个promise,所有这里递归调用resolvePromise,直到解析出一个常量为止.最终将常量返回.
+          resolvePromise(promise2, y, resolve, reject);
         }, r => reject(r))
-      } else {
+      } else
         resolve(x); // 其他情况做常量处理.
-      }
     } catch (error) {
       reject(error);
     }
