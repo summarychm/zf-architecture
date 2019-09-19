@@ -36,7 +36,7 @@ class Promise {
     // 调用者code有了明确调用(resolve/reject).
     let resolve = value => {
       // 兼容用户直接传入new Promise的写法,递归解析,向下传递
-      if (value instanceof Promise) return value.then(resolve, reject); 
+      if (value instanceof Promise) return value.then(resolve, reject);
       //! 只有在status是padding时才可以更改status(状态机)
       if (Object.is(this.status, constant.pending)) {
         this.value = value;
@@ -116,6 +116,15 @@ class Promise {
     });
     return promise2;
   }
+  // catch是没有成功的then方法
+  catch(onrejected = f => {throw f}) {
+    return this.then(null, onrejected);
+  }
+  // 成功和失败都执行
+  finally() {
+
+  }
+
 }
 
 // 暴露一个快捷方法,用于快速创建Promise实例和方便Promise测试
@@ -127,5 +136,13 @@ Promise.defer = function () {
     dfd.reject = reject;
   });
   return dfd;
+}
+//产生一个成功的Promise
+Promise.resolve = function (value) {
+  return new Promise((resolve, reject) => resolve(value))
+}
+//产生一个失败的Promise
+Promise.reject = function (reason) {
+  return new Promise((resolve, reject) => reject(reason));
 }
 module.exports = Promise;
