@@ -22,7 +22,11 @@ class Promise {
         //   this.rejectCallBackFn.forEach(fn => fn());
       }
     }
-    return exector(resolve, reject);
+    try {
+      return exector(resolve, reject);
+    } catch (e) {
+      reject(e)
+    }
   }
 
   then(onfulfilled, onrejected) {
