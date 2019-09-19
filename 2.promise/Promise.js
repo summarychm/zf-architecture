@@ -1,5 +1,14 @@
 const constant = {"pending": "pending", "fulfilled": "fulfilled", "rejected": "rejected"}
 
+function isPromise(obj) {
+  let flag = false;
+  if ((typeof obj === "object" && obj !== null) || typeof obj === "function") {
+    if (typeof obj.then === 'function')
+      flag = true;
+  }
+  return flag;
+}
+
 // 获取onfulfilled/onReject的执行结果x,
 // 判断x的类型,如果是非Promise则直接调用promise2的resolve.
 // 如果是x的Promise类型.则让x这个promise执行x.then,
@@ -7,24 +16,25 @@ function resolvePromise(promise2, x, resolve, reject) {
   // 排除循环引用的问题
   if (promise2 === x) return reject(newTypeError("循环引用!"));
   // 判断x是不是一个promise(只有对象/函数才有可能是Promise,兼容别人写的promise)
-  if (typeof x === "function" || (typeof x === "object" && x !== null)) {
-    try {
+  try {
+    if (isPromise(x)) {
       // 如果有then是一个方法,就认为x是一个promise
-      if (typeof x.then === 'function') {
-        // 调用x.then并将结果作为resolve的值返回
-        x.then.call(x, y => {
-          //! x.then的返回值y可能还是一个promise,所有这里递归调用resolvePromise,直到解析出一个常量为止.最终将常量返回.
-          resolvePromise(promise2, y, resolve, reject);
-        }, r => reject(r))
-      } else
-        resolve(x); // 其他情况做常量处理.
-    } catch (error) {
-      reject(error);
-    }
-  } else { //不是promise那肯定就是常量了
-    resolve(x); // 直接将常量x包装为resolve并返回.
+
+      // 调用x.then并将结果作为resolve的值返回
+      x.then.call(x, y => {
+        //! x.then的返回值y可能还是一个promise,所有这里递归调用resolvePromise,直到解析出一个常量为止.最终将常量返回.
+        resolvePromise(promise2, y, resolve, reject);
+      }, r => reject(r))
+
+    } else  //不是promise那肯定就是常量了
+      resolve(x); // 直接将常量x包装为resolve并返回.
+
+  } catch (error) {
+    reject(error);
   }
 }
+
+
 class Promise {
   constructor(exector) {
     this.value = null; // resolveValue
@@ -144,5 +154,30 @@ Promise.resolve = function (value) {
 //产生一个失败的Promise
 Promise.reject = function (reason) {
   return new Promise((resolve, reject) => reject(reason));
+}
+// 
+Promise.all = function (values) {
+  return new Promise((resolve, reject) => {
+    let results = [];//缓存执行结果
+    let i = 0;// 通过计数器来判断是否执行完毕.
+    let processData = (value, index) => {
+      results[index] = value;
+      // Promise全部执行完毕后,返回全部的执行结果
+      if (++i === values.length) resolve(results)
+    }
+    for (let i = 0; i < values.length; i++) {
+      const current = values[i];
+      if (isPromise(current)) {// 如果是promsie,则获取其then的返回值
+        current.then(y => {processData(y, i)}, reject);
+      } else {
+        processData(current, i);//常量则直接添加到results中
+      }
+
+
+    }
+  })
+}
+Promise.race = function () {
+
 }
 module.exports = Promise;
