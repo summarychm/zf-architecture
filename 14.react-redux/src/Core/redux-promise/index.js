@@ -3,9 +3,10 @@ export default function({ getState, dispatch }) {
 		return (action) => {
 			return isPromise(action.payload)
 				? action.payload
-						.then((result) => dispatch({ ...action, payload: result }))
+						.then((result) =>{console.log("redux-promise"); return dispatch({ ...action, payload: result })})
 						.catch((err) => {
 							dispatch({ ...action, payload: err, error: true });
+							
 							return Promise.reject(err);
 						})
 				: next(action);

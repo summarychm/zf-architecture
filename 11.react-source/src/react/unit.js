@@ -22,7 +22,7 @@ class Unit {
     this._currentElement = element; // 缓存当前组件的虚拟DOM实例
     // element的 props 如果应用于 dom 元素则作用于其属性,如果应用于自定义组件则充当起 props.
   }
-  getHtmlString(reactId) { // 组件最终要挂载到页面的html字符串
+  getHtmlString(reactId) { // 将虚拟DOM语法转为 html 字符串
     throw new Error("此方法不能被直接调用!")
   }
 }
@@ -38,7 +38,7 @@ class TextUnit extends Unit {
    * @param {Object} partialState 部分更新的的state
    */
   update(nextElement) {
-    // 判断新旧两个文本是否一致,不一致则更新
+    // 判断新旧两个文本节点是否一致,不一致则更新
     if (this._currentElement !== nextElement) {
       this._currentElement = nextElement;
       $(`[data-reactid="${this._reactId}"]`).html(this._currentElement);
@@ -48,13 +48,9 @@ class TextUnit extends Unit {
 
 // 子类:原生 DOM 元素
 class NativeUnit extends Unit {
-  // 将虚拟DOM语法转为 html 字符串
   getHtmlString(reactId) {
     this._reactId = reactId;
-    const {
-      type,
-      props
-    } = this._currentElement; //解构出type和props属性
+    const {type, props} = this._currentElement; //解构出type和props属性
     let tagStart = `<${type} data-reactid="${this._reactId}"`;
     let tagEnd = `</${type}>`;
     let childString = ``; // 存储子组件DOMString 集合
@@ -71,8 +67,8 @@ class NativeUnit extends Unit {
         tagStart += " class=" + props[propKey];
       } else if (propKey === "style") { // 3.处理特殊的style属性
         let styleStr = "";
+        // 将样式中驼峰写法改为通过"-"相连
         for (const [attr, value] of Object.entries(props[propKey])) {
-          // 将驼峰写法改为"-"相连
           styleStr += `${attr.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)}:${value};`
         }
         tagStart += ` style="${styleStr}"`;
@@ -81,8 +77,8 @@ class NativeUnit extends Unit {
         childString = children.map((ele, idx) => {
           let childUnitInstance = createReactUnit(ele); // 根据虚拟 DOM 创建 unit 实例
           childUnitInstance._mountIndex = idx; //! 子元素的挂载索引,用来表明当前元素在父节点中的索引位置
-          this._renderedChildrenUnits.push(childUnitInstance); //! 将children的unit存起来备用
-          // 子节点reactid= 自身节点+.+idx
+          this._renderedChildrenUnits.push(childUnitInstance); //! 在this上缓存children的unit
+          // 子节点 reactid= 自身节点+.+idx
           return childUnitInstance.getHtmlString(`${this._reactId}.${idx}`);
         }).join("");
       } else if (propKey === "htmlFor") { // 5.处理for属性

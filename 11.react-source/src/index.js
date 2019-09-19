@@ -60,7 +60,7 @@ class Todo extends React.Component {
   onDel(index) {
     this.state.list.splice(index, 1);
     this.setState({list: this.state.list});
-  }
+  } 
   render() {
     let input = React.createElement("input", {onKeyup: this.onChange.bind(this), value: this.state.text});
     let button = React.createElement("button", {onClick: this.add.bind(this)}, 'Add')

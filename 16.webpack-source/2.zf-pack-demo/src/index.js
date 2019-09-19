@@ -20,11 +20,11 @@ dog.getType()
 import img from './public/img.jpg';
 import logo from './public/logo.svg';
 
-let imgImg = document.createElement('img');
-imgImg.src = img;
-document.body.appendChild(imgImg);
-let logoImg = document.createElement('img');
-logoImg.style="width:100px;height:100px;";
-logoImg.src = logo;
-document.body.appendChild(logoImg);
+// let imgImg = document.createElement('img');
+// imgImg.src = img;
+// document.body.appendChild(imgImg);
+// let logoImg = document.createElement('img');
+// logoImg.style="width:100px;height:100px;";
+// logoImg.src = logo;
+// document.body.appendChild(logoImg);
 

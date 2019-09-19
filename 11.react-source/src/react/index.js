@@ -5,19 +5,19 @@ import $ from 'jquery';
 import Component from './component';// ReactElement父类
 import {createElement} from './element';//创建虚拟 DOM 实例
 import createReactUnit from './unit'; // 简单工厂类实例
-
+ 
 let React = {
   nextRootIndex: 0, // 下一个根节点索引号
   render, // 渲染虚拟DOM到真实DOM
   createElement, 
   Component 
 }
-
+ 
 // render -> createReactUnit -> ReactXXXUnit -> getMarkup(string)
-//将虚拟DOM渲染到真实DOM上
+//将虚拟DOM挂载到真实DOM上
 function render(element, container) {
   // 为了便于扩展,定义了工厂方法,根据传入的 element 类型返回不同的组件实例
-  let unitInstance = createReactUnit(element);
+  let unitInstance = createReactUnit(element); 
   // 返回组件实例对应的 HTML 片段
   let markUp = unitInstance.getHtmlString(React.nextRootIndex);
   // 将html片段挂载到指定DOM元素上

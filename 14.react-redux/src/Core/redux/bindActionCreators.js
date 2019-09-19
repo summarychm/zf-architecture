@@ -1,20 +1,18 @@
-// 批量将actionAcretors对象使用dispatch进行包裹
+// 批量为actionAcretors绑定dispatch
 // obj 写法 let actions = { add:{type: types.ADD}}
-// func写法
+// func写法 let add=function(){ return {type:types.ADD,payload}}
 export default function bindActionCreators(actionCreators, dispatch) {
-	if (typeof actionCreators === "function")
-		// 兼容直接传递action写法
+	if (typeof actionCreators === "function")// 兼容actionCreators的func写法
 		return bindActionCreator(actionCreators, dispatch);
-	let boundActionCreators = {};
+	let boundActionCreators = {};//存放绑定dispatch后的actionCreator对象
 	for (const key in actionCreators) {
 		const actionCreator = actionCreators[key];
-    if (typeof actionCreator === "function") 
-      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
+		if (typeof actionCreator === "function")
+			boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
 	}
 	return boundActionCreators;
 }
-// 将单个actionCreator使用dispatch包裹
+// 为单个actionCreator绑定dispatch
 function bindActionCreator(actionCreator, dispatch) {
-	// 接收用户传递的args参数
-	return (...args) => dispatch(actionCreator(...args));
+	return (...args) => dispatch(actionCreator(...args));// 接收payload参数
 }

@@ -1,5 +1,5 @@
 export function createRef() {
-	return { current: null };
+	return { current: {} };
 }
 export function forwardRef(funcComponent) {
 	return function(props) {

@@ -4,6 +4,9 @@ let mime = require("mime");
 
 let fileLoader = require("./file-loader.js");
 function loader(source) {
+  console.log('============  begin ====================');
+  console.log("url-loader");
+  console.log('============  end ======================');
   let options = getOptions(this) || {};
   let schema = {
     type: "object",

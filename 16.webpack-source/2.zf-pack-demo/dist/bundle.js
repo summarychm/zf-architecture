@@ -86,6 +86,23 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./loader/css-loader.js!./loader/less-loader.js!./src/index.less":
+/*!***********************************************************************!*\
+  !*** ./loader/css-loader.js!./loader/less-loader.js!./src/index.less ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+let list=[];
+list.push("body {\n  background-color: #ce40c2;\n  background-image: ")
+list.push('url('+__webpack_require__(/*! ./public/img.jpg */ "./src/public/img.jpg")+')');
+list.push(";\n}\n.class1 {\n  width: 300px;\n  height: 300px;\n  background: ")
+list.push('url('+__webpack_require__(/*! ./public/logo.svg */ "./src/public/logo.svg")+')');
+list.push(";\n}\n");
+module.exports=list.join("");
+
+/***/ }),
+
 /***/ "./src/common/a.js":
 /*!*************************!*\
   !*** ./src/common/a.js ***!
@@ -145,13 +162,13 @@ dog.getType()
 
 
 
-let imgImg = document.createElement('img');
-imgImg.src = _public_img_jpg__WEBPACK_IMPORTED_MODULE_0___default.a;
-document.body.appendChild(imgImg);
-let logoImg = document.createElement('img');
-logoImg.style="width:100px;height:100px;";
-logoImg.src = _public_logo_svg__WEBPACK_IMPORTED_MODULE_1___default.a;
-document.body.appendChild(logoImg);
+// let imgImg = document.createElement('img');
+// imgImg.src = img;
+// document.body.appendChild(imgImg);
+// let logoImg = document.createElement('img');
+// logoImg.style="width:100px;height:100px;";
+// logoImg.src = logo;
+// document.body.appendChild(logoImg);
 
 
 
@@ -162,11 +179,11 @@ document.body.appendChild(logoImg);
   !*** ./src/index.less ***!
   \************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 
     let style=document.createElement('style');
-    style.innerHTML="body {\\n  background-color: #ce40c2;\\n}\\n";
+    style.innerHTML=__webpack_require__(/*! !../loader/css-loader.js!../loader/less-loader.js!./index.less */ "./loader/css-loader.js!./loader/less-loader.js!./src/index.less");
     document.head.appendChild(style);
   
 

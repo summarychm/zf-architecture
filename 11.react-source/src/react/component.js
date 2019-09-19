@@ -26,7 +26,7 @@ class Updater {
       : this._componet.updateComponent();
   }
 }
-
+ 
 let transaction = new Transaction([{
   initialize() {
     batchingStrategy.isBatchingUpdates = true;
@@ -47,9 +47,9 @@ window.trigger = function (event, method) {
 
 // 用户自定义组件父类ReactElement
 class Component {
-  static isReactComponent = true;
+  static isReactComponent = true;//为了和函数组件进行区分
   constructor(props) {
-    this.props = props;
+    this.props = props;// 挂载传入的props
     // 每个组件对应自己的更新器实例,双向指向
     this._updater = new Updater(this);
   }
@@ -60,9 +60,10 @@ class Component {
     // 参数1:新元素,参数2:新状态
     // this._currentUnit.update(null, partialState);
   }
-  // 正式更新组件
+  // 正式更新组件当前组件
   updateComponent() {
     let state = {}
+    // 将要更改的partState合并到state上
     this._updater._pedingStates.forEach(partState => Object.assign(state, partState))
     this._updater._pedingStates = [];//清空暂存状态集合
     this._currentUnit.update(null, state);//! 调用组件unit实例上的update方法,开始更新
