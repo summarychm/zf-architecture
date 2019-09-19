@@ -26,7 +26,3 @@ read("./step1.txt").then(data => {
 }, function (e) {
   console.log("err3", e)
 });
-
-Promise
-  .all([1, 2, 3, Promise.resolve(4), 5])
-  .then(data => console.log(data))

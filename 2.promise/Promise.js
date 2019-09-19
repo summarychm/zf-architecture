@@ -18,8 +18,6 @@ function resolvePromise(promise2, x, resolve, reject) {
   // 判断x是不是一个promise(只有对象/函数才有可能是Promise,兼容别人写的promise)
   try {
     if (isPromise(x)) {
-      // 如果有then是一个方法,就认为x是一个promise
-
       // 调用x.then并将结果作为resolve的值返回
       x.then.call(x, y => {
         //! x.then的返回值y可能还是一个promise,所有这里递归调用resolvePromise,直到解析出一个常量为止.最终将常量返回.
@@ -177,7 +175,15 @@ Promise.all = function (values) {
     }
   })
 }
-Promise.race = function () {
-
+Promise.race = function (values) {
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < values.length; i++) {
+      const current = values[i];
+      if (isPromise(current))
+        current.then.call(current, resolve, reject);
+      else
+        resolve(current);
+    }
+  })
 }
 module.exports = Promise;
