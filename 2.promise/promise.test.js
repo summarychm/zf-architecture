@@ -1,10 +1,14 @@
-var Promise = require('./Promise');
+// var Promise = require('./Promise');
 
 let promise = new Promise(function (resolve, reject) {
-  throw new Error("错误了")
-  resolve(123);
-  reject(456);
+  // resolve(123);
+  // reject(456);
+  setTimeout(() => {
+    resolve("成功")
+    // reject("失败")
+  }, 10);
 });
+console.log("begin");
 promise.then(function (value) {
   console.log("success", value);
 }, function (reason) {
