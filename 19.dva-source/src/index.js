@@ -1,12 +1,12 @@
 import React from 'react';
-import dva,{connect} from 'dva';
+import dva,{connect} from './dva';
 
 let app=new dva();
 app.model({
   namespace:"counter",
   state:{number:0},
   reducers:{
-    add(state,{payload=1}){
+    add(state=0,{payload=1}){
       return {number:state.number+payload}
     }
   }
