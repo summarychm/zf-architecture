@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import {createHashHistory} from "history";
+
 import {createStore, combineReducers, applyMiddleware} from "redux";
 import {connect, Provider} from 'react-redux';
 import createSagaMiddleware from "redux-saga";
@@ -8,7 +10,7 @@ import * as sagaEffects from "redux-saga/effects";
 export {connect};
 
 
-export default function () {
+export default function (opt) {
   const app = {
     _models: [],// 存放用于合并到store的model对象.
     model,
@@ -56,12 +58,12 @@ export default function () {
     let sagaMiddleware = createSagaMiddleware();// 创建saga中间件
     let store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
     sagaMiddleware.run(rootSaga);// 开启saga中间件监听
-    
 
-    let App = app._router; // 重命名router信息
+    let history = opt.history||createHashHistory();
+    let App = app._router({history}); // 生成静态路由表,传入history
     ReactDOM.render(
       <Provider store={store}>
-        <App />
+        {App}
       </Provider>, document.querySelector(selector));
   }
   return app;
