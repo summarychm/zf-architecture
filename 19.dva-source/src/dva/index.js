@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 import {createHashHistory} from "history";
 // redux && redux-saga
-import {createStore, combineReducers, applyMiddleware} from "redux";
+import {createStore, compose, combineReducers, applyMiddleware} from "redux";
 import createSagaMiddleware from "redux-saga";
 import * as sagaEffects from "redux-saga/effects";
 import {connect, Provider} from 'react-redux';
@@ -19,6 +19,7 @@ export {connect};
 
 
 export default function (opt) {
+  let history = opt.history || createHashHistory();
   const app = {
     _models: [],// 存放用于合并到store的model对象.
     model,
@@ -35,11 +36,11 @@ export default function (opt) {
     app._router = routerConfig;
   }
   function start(selector) {
-    let history = opt.history || createHashHistory();
-
     let reducers = {
       router: connectRouter(history)
     };
+    // 将额外的reducer追加到rootReducer中
+    if (opt.extraReducers) reducers = {...reducers, ...opt.extraReducers}
     app._models.forEach((model, idx) => {
       // 为reducer添加namespace
       model.reducers = prefixNamespace(model.reducers, model.namespace);
@@ -73,10 +74,37 @@ export default function (opt) {
       }
     }
 
-    let rootReducer = combineReducers(reducers);// 合并rootReducer
     let sagaMiddleware = createSagaMiddleware();// 创建saga中间件
+    let combinedReducer = combineReducers(reducers);// 合并rootReducer
+    //! 添加onStateChange钩子
+    let rootReducer = function (state, action) {
+      let newState = combinedReducer(state, action);
+      opt.onStateChange && opt.onStateChange(newState);
+      return newState;
+    }
+    //! 增强reducer
+    if (opt.onReducer) rootReducer = opt.onReducer(rootReducer);
 
-    let store = createStore(rootReducer, applyMiddleware(routerMiddleware(history), sagaMiddleware));
+    //! 添加onAction钩子,增强中间件
+    if (opt.onAction) {
+      if (typeof opt.onAction === "function")
+        opt.onAction = [opt.onAction]; // 单一middleware的情况
+    } else
+      opt.onAction = [];//没有中间件的情况
+
+    //TODO enhanced dva内部是如何增强的?在applyMiddleware之前还是之后?
+    let enhancedCreatorStore;
+    if (opt.extraEnhancers) {
+      let extraEnhancerFn = compose(...opt.extraEnhancers);
+      enhancedCreatorStore = extraEnhancerFn(createStore);
+    }
+    else enhancedCreatorStore = createStore;
+    let store = enhancedCreatorStore(rootReducer, applyMiddleware(
+      routerMiddleware(history),
+      sagaMiddleware,
+      ...opt.onAction
+    ));
+
     sagaMiddleware.run(rootSaga);// 开启saga中间件监听
     let App = app._router({history, app}); // 生成静态路由表,传入history
     ReactDOM.render(
