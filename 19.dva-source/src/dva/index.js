@@ -57,11 +57,18 @@ export default function (opt) {
       // 批量注册model实例中的effects
       for (const model of app._models) {
         for (const key in model.effects) {
-          let name = model.namespace + "/" + key;
-          // 使用takeEvery监听当前namespace下的effects
-          yield takeEvery(name, function* (action) {
-            yield model.effects[key](action, sagaEffects);
-          });
+          let effect = model.effects[key];
+          // TODO 这里的type需要支持takeEvery,takeLatest,throttle,watcher类型
+          if (Array.isArray(effect)) {
+            let effectGen = effect[0];
+            yield sagaEffects.fork(effectGen, sagaEffects)
+          } else {
+            let name = model.namespace + "/" + key;
+            // 使用takeEvery监听当前namespace下的effects
+            yield takeEvery(name, function* (action) {
+              yield model.effects[key](action, sagaEffects);
+            });
+          }
         }
       }
     }
@@ -71,7 +78,7 @@ export default function (opt) {
 
     let store = createStore(rootReducer, applyMiddleware(routerMiddleware(history), sagaMiddleware));
     sagaMiddleware.run(rootSaga);// 开启saga中间件监听
-    let App = app._router({history,app}); // 生成静态路由表,传入history
+    let App = app._router({history, app}); // 生成静态路由表,传入history
     ReactDOM.render(
       <Provider store={store}>
         <ConnectedRouter history={history}>

@@ -28,14 +28,26 @@ app.model({
     },
     *goto({to}, {put}) {
       yield put(routerRedux.push(to))
-    }
+    },
+    addWatchers:[ // 自定义effects
+      function*({take,put,call}){
+        for (let i = 0; i < 3; i++) {
+          const action=yield take("counter/addWatcher");
+          yield call(delay,200);
+          yield put({type:'counter/add',payload:action.payload})
+        }
+        alert("已达到最大值,不能再加了");
+      },
+      {type:'watcher'}
+    ]
   }
 });
 const Counter = connect(state => state.counter)(props => (<>
   <p>{props.number}</p>
   <button onClick={() => props.dispatch({type: "counter/add", payload: 6})}>+</button>
   <button onClick={() => props.dispatch({type: "counter/asyncAdd", payload: 10})} >asyncAdd</button>
-  <button onClick={() => props.dispatch({type: "counter/goto", to: "/"})} >返回首页</button>
+
+  <button onClick={() => props.dispatch({type: "counter/addWatcher", payload: 5})} >最多加三次,每次加5</button>  <button onClick={() => props.dispatch({type: "counter/goto", to: "/"})} >返回首页</button>
 </>));
 
 const Home = withRouter(props => (
