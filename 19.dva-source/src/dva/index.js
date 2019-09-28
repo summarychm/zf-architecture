@@ -2,11 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import {createHashHistory} from "history";
-
+// redux && redux-saga
 import {createStore, combineReducers, applyMiddleware} from "redux";
-import {connect, Provider} from 'react-redux';
 import createSagaMiddleware from "redux-saga";
 import * as sagaEffects from "redux-saga/effects";
+import {connect, Provider} from 'react-redux';
+
+// react-router-dom connected-react-router
+import {
+  routerMiddleware,//支持push方法的中间件
+  connectRouter,// 用于构造store中初始history属性
+  ConnectedRouter // connected-react-router的Provider
+} from "connected-react-router";
+
 export {connect};
 
 
@@ -27,7 +35,11 @@ export default function (opt) {
     app._router = routerConfig;
   }
   function start(selector) {
-    let reducers = {};
+    let history = opt.history || createHashHistory();
+
+    let reducers = {
+      router: connectRouter(history)
+    };
     app._models.forEach((model, idx) => {
       // 为reducer添加namespace
       model.reducers = prefixNamespace(model.reducers, model.namespace);
@@ -56,14 +68,15 @@ export default function (opt) {
 
     let rootReducer = combineReducers(reducers);// 合并rootReducer
     let sagaMiddleware = createSagaMiddleware();// 创建saga中间件
-    let store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
-    sagaMiddleware.run(rootSaga);// 开启saga中间件监听
 
-    let history = opt.history||createHashHistory();
-    let App = app._router({history}); // 生成静态路由表,传入history
+    let store = createStore(rootReducer, applyMiddleware(routerMiddleware(history), sagaMiddleware));
+    sagaMiddleware.run(rootSaga);// 开启saga中间件监听
+    let App = app._router({history,app}); // 生成静态路由表,传入history
     ReactDOM.render(
       <Provider store={store}>
-        {App}
+        <ConnectedRouter history={history}>
+          {App}
+        </ConnectedRouter>
       </Provider>, document.querySelector(selector));
   }
   return app;

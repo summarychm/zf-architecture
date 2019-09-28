@@ -1,6 +1,6 @@
 import React from 'react';
 import dva, {connect} from './dva';
-import {Router, Route} from './dva/router';
+import {Router, Route, Redirect, Switch, routerRedux, withRouter, Link} from './dva/router';
 import {createBrowserHistory} from "history";
 
 // TODO 可抽取为utils
@@ -25,6 +25,9 @@ app.model({
     *asyncAdd({payload}, {call, put}) {
       yield call(delay, 500);
       yield put({type: "counter/add", payload});
+    },
+    *goto({to}, {put}) {
+      yield put(routerRedux.push(to))
     }
   }
 });
@@ -32,15 +35,24 @@ const Counter = connect(state => state.counter)(props => (<>
   <p>{props.number}</p>
   <button onClick={() => props.dispatch({type: "counter/add", payload: 6})}>+</button>
   <button onClick={() => props.dispatch({type: "counter/asyncAdd", payload: 10})} >asyncAdd</button>
+  <button onClick={() => props.dispatch({type: "counter/goto", to: "/"})} >返回首页</button>
 </>));
 
-const Home = props => <p>Home</p>;
+const Home = withRouter(props => (
+  <>
+    <p>Home</p>
+    <Link to="/counter">counter</Link>
+  </>
+));
 
 app.router(({history}) => (
   <Router history={history}>
     <>
-      <Route path="/" exact={true} component={Home} />
-      <Route path="/counter" component={Counter} />
+      <Switch>
+        <Route path="/" exact={true} component={Home} />
+        <Route path="/counter" component={Counter} />
+        <Redirect to="/" />
+      </Switch>
     </>
   </Router>
 ));
