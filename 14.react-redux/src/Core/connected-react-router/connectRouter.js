@@ -6,7 +6,7 @@ export default function (history) {
     let initialState={action:history.action,location:history.location};
     return function(state=initialState,action){
       if(action.type===LOCATION_CHANGE)
-        return action.payload;
+        return action.payload; // 用新的location信息替换原有的location信息
       return state;
     }
 }

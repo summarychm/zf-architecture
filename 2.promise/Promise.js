@@ -1,101 +1,83 @@
-const constant = {"pending": "pending", "fulfilled": "fulfilled", "rejected": "rejected"}
-
 function isPromise(obj) {
   let flag = false;
   if ((typeof obj === "object" && obj !== null) || typeof obj === "function") {
-    if (typeof obj.then === 'function')
-      flag = true;
+    if (typeof obj.then === 'function') flag = true;
   }
   return flag;
 }
 
-// 获取onfulfilled/onReject的执行结果x,
-// 判断x的类型,如果是非Promise则直接调用promise2的resolve.
-// 如果是x的Promise类型.则让x这个promise执行x.then,
-function resolvePromise(promise2, x, resolve, reject) {
-  // 排除循环引用的问题
-  if (promise2 === x) return reject(newTypeError("循环引用!"));
-  // 判断x是不是一个promise(只有对象/函数才有可能是Promise,兼容别人写的promise)
+// 解析value的值,并将其包装为promise返回(支持常量/Promise/Promise嵌套)
+// 常量直接包装并返回,Promise则调用.then(),并处理Promise嵌套的情况.
+function resolvePromise(promise2, value, resolve, reject) {
+  if (promise2 === value) return reject(newTypeError("循环引用!"));
   try {
-    if (isPromise(x)) {
-      // 调用x.then并将结果作为resolve的值返回
-      x.then.call(x, y => {
-        //! x.then的返回值y可能还是一个promise,所有这里递归调用resolvePromise,直到解析出一个常量为止.最终将常量返回.
-        resolvePromise(promise2, y, resolve, reject);
-      }, r => reject(r))
-
-    } else  //不是promise那肯定就是常量了
-      resolve(x); // 直接将常量x包装为resolve并返回.
-
-  } catch (error) {
-    reject(error);
-  }
+    if (isPromise(value)) // 调用value.then获取结果,并使用resolvePromise进行解析为常量(兼容promise嵌套)
+      value.then.call(value, data => {resolvePromise(promise2, data, resolve, reject)}, r => reject(r))
+    else resolve(value);//不是promise则肯定是常量
+  } catch (error) {reject(error)}
 }
 
 
 class Promise {
   constructor(exector) {
     this.value = null; // resolveValue
-    this.status = constant.pending;
     this.reason = null; // rejectValue
-    this.resolveCallBackFn = [];//当then时,status为padding则将成功回调存入.
+    this.resolveCallBackFn = [];//当then时,status为padding缓存回调(有异步的情况).
     this.rejectCallBackFn = [];
+    this.constant = {"pending": "pending", "fulfilled": "fulfilled", "rejected": "rejected"}
+    this.status = this.constant.pending;
 
     // 调用者code有了明确调用(resolve/reject).
     let resolve = value => {
-      // 兼容用户直接传入new Promise的写法,递归解析,向下传递
+      // 兼容用户传入promise的写法,递归解析,向下传递
       if (value instanceof Promise) return value.then(resolve, reject);
+
       //! 只有在status是padding时才可以更改status(状态机)
-      if (Object.is(this.status, constant.pending)) {
+      if (Object.is(this.status, this.constant.pending)) {
         this.value = value;
-        this.status = constant.fulfilled;
+        this.status = this.constant.fulfilled;
         this.resolveCallBackFn.forEach(fn => fn());
       }
     }
     let reject = value => {
-      if (Object.is(this.status, "pending")) {
+      if (Object.is(this.status, this.constant.pending)) {
         this.reason = value;
-        this.status = constant.rejected;
+        this.status = this.constant.rejected;
         this.rejectCallBackFn.forEach(fn => fn());
       }
     }
-    try { // Promise初始化时出错,直接调用reject
-      return exector(resolve, reject);
-    } catch (e) {
-      reject(e)
-    }
+    try {
+      exector(resolve, reject);
+    } catch (e) {reject(e)}// Promise初始化时出错,直接调用reject
   }
   // 处理promise实例的返回值(异步)
-  then(onfulfilled = f => f, onrejected = f => {throw f}) {
+  then(onfulfilled, onrejected) {
+    onfulfilled = onfulfilled || (f => f);
+    onrejected = onrejected || (f => {throw new Error(f)});
     let promise2 = new Promise((resolve, reject) => {
       switch (this.status) {
-        case constant.fulfilled:
-          // 为了保证同步模式下promise.then中promise2存在,这里使用setTimeout来模拟microTask,错峰获取promise2实例.
-          // 浏览器内部使用的是micro task而非setTimeout  
+        case this.constant.fulfilled:
+          //promise.then采用延时绑定,所以这里使用setTimeout来模拟microTask,异步获取promise2实例.浏览器内部使用的是micro task而非setTimeout
           setTimeout(() => {
             try {
-              //获取当前then中onfulfilled返回值
-              let x = onfulfilled(this.value);
-              // 根据x的返回值类型来调用不同的处理函数
-              resolvePromise(promise2, x, resolve, reject);
+              let value = onfulfilled(this.value);//获取当前then中onfulfilled返回值
+              resolvePromise(promise2, value, resolve, reject);// 根据value的类型来调用不同的处理函数
             } catch (e) {
               reject(e);
             }
           }, 0);
           break;
-        case constant.rejected:
+        case this.constant.rejected:
           setTimeout(() => {
             try {
-              //获取当前then中onrejected返回值
-              let x = onrejected(this.value);
-              // 根据x的返回值类型来调用不同的处理函数
-              resolvePromise(promise2, x, resolve, reject);
+              let value = onrejected(this.reason);//获取当前then中onrejected返回值
+              resolvePromise(promise2, value, resolve, reject);// 根据value的返回值类型来调用不同的处理函数
             } catch (e) {
               reject(e);
             }
           }, 0);
           break;
-        case constant.pending:// pending状态,延迟执行,暂存resolve和reject回调,等待Promise有明确的返回值
+        case this.constant.pending:// pending状态,延迟执行,暂存resolve和reject回调,等待Promise有明确的返回值
           // 异步promise.then中就不需要使用setTimeout来获取promise2实例了,因为异步promise.then调用时,promise2已经创建了.
           // 只有同步的promise.then才需要使用setTimeout来错开当前执行栈,让promise2初始化.
           this.resolveCallBackFn.push(() => {
@@ -137,7 +119,7 @@ class Promise {
 
 // 暴露一个快捷方法,用于快速创建Promise实例和方便Promise测试
 // 可以减少使用时的嵌套层数.延迟对象,类似于angular中的Q
-Promise.defer = function () {
+Promise.deferred = function () {
   let dfd = {};
   dfd.promise = new Promise((resolve, reject) => {
     dfd.resolve = resolve;

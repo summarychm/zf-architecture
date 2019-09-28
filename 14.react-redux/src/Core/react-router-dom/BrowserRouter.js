@@ -1,6 +1,6 @@
 import React from 'react';
 import RouterContext from './context';
-// 对pushState进行包装(AOP)
+//重新包装history.pushState(AOP)
 (function (history) {
   var pushState = history.pushState;
   history.pushState = function (state, title, path) {
@@ -19,7 +19,10 @@ export default class BrowserRouter extends React.Component {
     this.block = null;
   }
   componentWillMount() {
+    // 自己实现onPopState和onPushState
     window.onpopstate=window.onpushstate = (state, pathname) => {
+      console.log("state chanage");
+      
       this.setState({
         location: {
           ...this.state.location,
@@ -56,7 +59,7 @@ export default class BrowserRouter extends React.Component {
           } else
             window.history.pushState("", to, to);
         },
-        block(message) {
+        block(message) {//更新警告框内容
           that.block = message;
         },
         unblock() {

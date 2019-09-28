@@ -1,0 +1,9 @@
+{
+  "extraBabelPlugins": [["import", { "libraryName": "antd", "libraryDirectory": "es", "style": "css" }]],
+  "entry": "src/index.js",
+  "disableCSSModules": false,
+  "publicPath": "/",
+  "outputPath": "./dist",
+  "extraPostCSSPlugins": [],
+  "env": {}
+}

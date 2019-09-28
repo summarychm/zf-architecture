@@ -12,13 +12,10 @@ export default function applyMiddleware(...middlewares) {
 				getStore: store.getState,
 				dispatch: (...args) => dispatch(...args),// 调用最新增强的dispatch,用于应对级联派发action
 			};
-			debugger
 			// 3.依次初始化中间件,方便三层函数嵌套形式的中间件集合.
 			let chain = middlewares.map((middleware) => middleware(middlewaresAPI));
-			debugger
 			// 依次调用中间件来增强store.dispatch,前一个中间件返回的dispatch作为下一个中中间件的入参next
 			dispatch = compose(...chain)(store.dispatch);
-			debugger
 			// 4.将新dispatch和s增强后的tore融合并返回
 			return {
 				...store,

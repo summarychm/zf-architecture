@@ -25,7 +25,7 @@ export default class Route extends React.Component {
 			pathNames = pathNames.map((item) => item.name);
 			let [url, ...values] = result; //提取结果中的所有路径参数
 			let params = tools.combineObj(values, pathNames); // 将路径参数转为对象
-			// 构建match属性
+			// 构建match属性,只有匹配才会有match属性
 			props.match = {
 				url: pathname,
 				// 正则匹配到的url和当前pathname是否相等

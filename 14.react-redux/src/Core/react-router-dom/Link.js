@@ -11,7 +11,7 @@ export default class Link extends React.Component {
 				href={history.createHref(this.props.to)}
 				onClick={(e) => {
 					e.preventDefault();
-					history.push(to);
+					history.push(to);//通过historyAPI来进行跳转
 				}}>
 				{children}
 			</a>

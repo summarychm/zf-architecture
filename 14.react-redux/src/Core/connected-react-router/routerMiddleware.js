@@ -1,5 +1,6 @@
 import {CALL_HISTORY_METHOD} from "./constants";
 // 中间件: 用于处理CALL_HISTORY_METHOD(用户主动发起的)类型的action
+// 比普通的中间多一层,用于传递history
 export default function routerMiddleware(history) {
   return function (store) {
     return function (next) {
@@ -7,7 +8,7 @@ export default function routerMiddleware(history) {
         if (action.type !== CALL_HISTORY_METHOD)
           return next(action); // 非特殊type,跳过让redux处理
         let {method,args} = action.payload;
-        history[method](args);// 调用history对象的
+        history[method](args);// 调用history对象上的
       }
     }
   }

@@ -1,7 +1,6 @@
 import React from "react";
 import RouterContext from "./context";
-// 通过暴露的when属性来标识是否阻止跳转,
-// 通过暴露的message属性来作为提示文本
+// 通过暴露的when属性(标识是否阻止跳转),message属性(提示文本)
 export default class Prompt extends React.Component {
 	static contextType = RouterContext;
 	render() {
