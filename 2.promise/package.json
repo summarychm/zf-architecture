@@ -1,0 +1,17 @@
+{
+  "name": "2.promise",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Promise.js",
+  "scripts": {
+    "test": "promises-aplus-tests adapter.js",
+		"test-rxjs": "promises-aplus-tests adapter-rxjs",
+		"test-naive": "promises-aplus-tests adapter-naive"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "promises-aplus-tests": "^2.1.2"
+  }
+}

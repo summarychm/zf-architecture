@@ -1,11 +1,18 @@
-var Promise = require('./Promise');
-var promise1 = new Promise(function (resolve, reject) {
-  resolve(123)
+console.log("-- begin");
+var Promise = require('./src/index2');
+debugger  
+var promise1 = new Promise((resolve, reject) => {
+  resolve(5);
 });
-setTimeout(() => {
-  promise1.then(data => {console.log("data", data)},e=>{console.log("e",e);
-  });
-}, 100);
+debugger
+promise1.then(data => {
+  console.log("-- then data", data);
+}, e => {
+  console.error("错误信息", e);
+});
+
+console.log("-- end");
+
 
 
 // var fs = require("fs");

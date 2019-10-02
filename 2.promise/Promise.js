@@ -12,7 +12,9 @@ function resolvePromise(promise2, value, resolve, reject) {
   if (promise2 === value) return reject(newTypeError("循环引用!"));
   try {
     if (isPromise(value)) // 调用value.then获取结果,并使用resolvePromise进行解析为常量(兼容promise嵌套)
-      value.then.call(value, data => {resolvePromise(promise2, data, resolve, reject)}, r => reject(r))
+      // TODO 这里该采用哪种写法,直接将resolve和reject传递下去?还是像姜文这种用resolvePromise包裹来替代resolve?
+      // 这里不直接使用resolve而是用匿名函数+resolvePromise,是为了应对promise.then中返回的还是一个Promise的情况.
+      value.then.call(value, data => {resolvePromise(promise2, data, resolve, reject)}, reject)
     else resolve(value);//不是promise则肯定是常量
   } catch (error) {reject(error)}
 }
@@ -26,13 +28,12 @@ class Promise {
     this.rejectCallBackFn = [];
     this.constant = {"pending": "pending", "fulfilled": "fulfilled", "rejected": "rejected"}
     this.status = this.constant.pending;
-
+    console.log("-- Promise constructor");
     // 调用者code有了明确调用(resolve/reject).
     let resolve = value => {
+      console.log("-- resolve", this.resolveCallBackFn);
       // 兼容用户传入promise的写法,递归解析,向下传递
       if (value instanceof Promise) return value.then(resolve, reject);
-
-      //! 只有在status是padding时才可以更改status(状态机)
       if (Object.is(this.status, this.constant.pending)) {
         this.value = value;
         this.status = this.constant.fulfilled;
@@ -40,6 +41,7 @@ class Promise {
       }
     }
     let reject = value => {
+      console.log("-- reject");
       if (Object.is(this.status, this.constant.pending)) {
         this.reason = value;
         this.status = this.constant.rejected;
@@ -51,13 +53,14 @@ class Promise {
     } catch (e) {reject(e)}// Promise初始化时出错,直接调用reject
   }
   // 处理promise实例的返回值(异步)
-  then(onfulfilled, onrejected) {
-    onfulfilled = onfulfilled || (f => f);
-    onrejected = onrejected || (f => {throw new Error(f)});
+  then(onfulfilled = f => f, onrejected = f => {throw new Error(f)}) {
+    console.log("-- then");
+    // TODO 这个setTimeout的是为什么?李兵,工业聚,姜文
     let promise2 = new Promise((resolve, reject) => {
+      // 根据当前自身状态进行不同处理
       switch (this.status) {
         case this.constant.fulfilled:
-          //promise.then采用延时绑定,所以这里使用setTimeout来模拟microTask,异步获取promise2实例.浏览器内部使用的是micro task而非setTimeout
+          //promise.then采用延时绑定,所以这里使用setTimeout来模拟microTask,异步获取promise2实例.浏览器内部使用的是microTask而非setTimeout
           setTimeout(() => {
             try {
               let value = onfulfilled(this.value);//获取当前then中onfulfilled返回值
@@ -80,24 +83,20 @@ class Promise {
         case this.constant.pending:// pending状态,延迟执行,暂存resolve和reject回调,等待Promise有明确的返回值
           // 异步promise.then中就不需要使用setTimeout来获取promise2实例了,因为异步promise.then调用时,promise2已经创建了.
           // 只有同步的promise.then才需要使用setTimeout来错开当前执行栈,让promise2初始化.
-          this.resolveCallBackFn.push(() => {
-            try {
+          try {
+            this.resolveCallBackFn.push(() => {
               let x = onfulfilled(this.value);//获取当前then中onfulfilled返回值
               resolvePromise(promise2, x, resolve, reject);
-            } catch (e) {
-              reject(e);
-            }
-          });
-          this.rejectCallBackFn.push(() => {
-            try {
+            });
+            this.rejectCallBackFn.push(() => {
               //获取当前then中onrejected返回值
               let x = onrejected(this.reason);
               // 根据x的返回值类型来调用不同的处理函数
               resolvePromise(promise2, x, resolve, reject);
-            } catch (e) {
-              reject(e);
-            }
-          });
+            });
+          } catch (e) {
+            reject(e);
+          }
           break;
         default:
           // throw new Error("错误的状态", this.status);
@@ -117,16 +116,7 @@ class Promise {
 
 }
 
-// 暴露一个快捷方法,用于快速创建Promise实例和方便Promise测试
-// 可以减少使用时的嵌套层数.延迟对象,类似于angular中的Q
-Promise.deferred = function () {
-  let dfd = {};
-  dfd.promise = new Promise((resolve, reject) => {
-    dfd.resolve = resolve;
-    dfd.reject = reject;
-  });
-  return dfd;
-}
+
 //产生一个成功的Promise
 Promise.resolve = function (value) {
   return new Promise((resolve, reject) => resolve(value))
@@ -167,5 +157,14 @@ Promise.race = function (values) {
         resolve(current);
     }
   })
+}
+// 暴露一个快捷方法,用于快速创建Promise实例和方便Promise测试,可以减少使用时的嵌套层数.延迟对象,类似于angular中的Q
+Promise.deferred = function () {
+  let dfd = {};
+  dfd.promise = new Promise((resolve, reject) => {
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
+  return dfd;
 }
 module.exports = Promise;
