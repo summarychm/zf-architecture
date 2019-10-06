@@ -1,11 +1,12 @@
-class response{
-  get body(){
-    return this.body;
-  }
-  set body(val){
-    console.log("ccc")
-    this.res.statusCode=200;// 调用了 body,就将状态码改为 200;
-    this.body=val;
+let response = {
+  _body:"",//第三方变量中转
+  get body() {
+    return this._body;
+  },
+  set body(val) {
+    // 如果调用了ctx.body 会将状态码 变成200
+    this.res.statusCode = 200;
+    this._body = val;
   }
 }
-module.exports=response;
+module.exports = response;

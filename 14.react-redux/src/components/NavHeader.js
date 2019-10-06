@@ -1,5 +1,5 @@
 import React from "react";
-import { withRouter } from "../Core/react-router-dom";
+import {withRouter} from "../Core/react-router-dom";
 class NavHeader extends React.Component {
 	render() {
 		return (
@@ -7,9 +7,7 @@ class NavHeader extends React.Component {
 				<a
 					href="void:(0);"
 					className="navbar-brand"
-					onClick={() => {
-						this.props.history.push("/");
-					}}>
+					onClick={() => this.props.history.push("/")}>
 					珠峰架构
 				</a>
 			</div>

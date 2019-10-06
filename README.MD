@@ -68,4 +68,18 @@ Promise.prototype.finally = function(onFinally) {
 };
 
 Promise.prototype.finally = function(onFinally) {};
+
+
+
+// console.log(require)
+// const context = require.context("./", false, /\.js$/);
+// var ceshi = context
+//   .keys()
+//   .filter((item) => item != "index.js")
+//   .map((key) => context(key));
+// console.log(ceshi);
+
+// require("./modules").default.forEach(key => app.model(key.default))
+
+
 ```
