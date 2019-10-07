@@ -1,0 +1,15 @@
+{
+  "name": "31.vue-Tips",
+  "version": "1.0.0",
+  "description": "",
+  "main": "1.proxy.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
+}

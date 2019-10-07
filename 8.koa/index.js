@@ -1,24 +1,13 @@
 let fs = require('fs');
 let path = require("path");
 
-// let Koa = require("./lib/application");
-let Koa=require("koa")
+let Koa = require("./lib/application");
+// let Koa=require("koa")
+
+let static = require('./lib/koa-static');
+
 let app = new Koa();
-
-// let koaStatic = require('./lib/koa-static');
-// app.use(koaStatic(path.join(__dirname,"./public"))); //使用中间件
-
-
-// app.use(async (ctx, next) => {
-//   try {
-//     let msg="";
-//     let ccc=await next();
-//   } catch (err) {
-//     console.log("出错了", err);
-//     ctx.body = "page error: " + err.message;
-//   }
-// });
-// app.use(async ctx=>{throw new Error("abcde");})
+app.use(static(path.join(__dirname,"./public"))); //静态资源中间件
 
 app.use(async (ctx, next) => {
   // throw new Error("我是错误信息! -- abc");
@@ -32,6 +21,19 @@ app.use(async (ctx, next) => {
   ctx.response.body = 'hello'
   console.log(ctx.body);
 });
+
+
+// app.use(async (ctx, next) => {
+//   try {
+//     let msg="";
+//     let ccc=await next();
+//   } catch (err) {
+//     console.log("出错了", err);
+//     ctx.body = "page error: " + err.message;
+//   }
+// });
+// app.use(async ctx=>{throw new Error("abcde");})
+
 
 // let logger =function(){
 //   return new Promise((resolve,reject)=>{
@@ -73,6 +75,7 @@ app.use(async (ctx, next) => {
 //   throw new Error("出错了!!!!")
 //   ctx.body={a:1}
 // });
+
 app.on("error", (err, ctx) => {
   console.log(err)
   ctx.res.end("error 出错了"+JSON.stringify(err));

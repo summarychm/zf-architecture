@@ -41,13 +41,12 @@ class Application extends EventEmitter {
     return this.ctx;
   }
   // 组合中间件,使用者可以通过 next() 来控制执行,相当于返回一个生成器
+  // 通过async/await来层层等待,直到所有middleware执行完毕
   compose(ctx, middlewares) {
     async function dispatch(index) {
       let middle = middlewares[index];
-      if (index >= middlewares.length)
-        return Promise.resolve(); // 越界直接成功
-      // 执行当前中间件并将下一个中间件调用包装为形参,由使用者自行next(延迟next函数的执行)
-      return middle(ctx, () => dispatch(index + 1))
+      if (index >= middlewares.length) return Promise.resolve(); // 越界返回Resolve的Promise.
+      return middle(ctx, () => dispatch(index + 1)); //将dispatch延迟绑定,让使用者自行调用.
     };
     return dispatch(0); // 返回一个 promise,
   }
@@ -58,25 +57,31 @@ class Application extends EventEmitter {
     //3. 中间件执行完毕后,通过ctx.body下发相应报文.
     let ctx = this.createContext(req, res); //!基于 req,res 创建自定义ctx
     res.statusCode = 404; // 默认设置为 404(body更改,自动更换) 
-    let pro = this.compose(ctx, this.middlewares);
-    pro.then(() => {
-      if (!ctx.body) return res.end("Not Found");
-      if (ctx.body instanceof Stream) { // 对象为数据流的情况(下载文件)
-        res.setHeader('Content-type', 'application/octet-stream');
-        res.setHeader('Content-Disposition', 'attachment;filename=' + encodeURIComponent('下载'));
-        return ctx.body.pipe(res);
-      }
-      if (typeof ctx.body === 'object') { // body为 对象的情况
-        res.setHeader("Content-Type", "application/json");
-        return res.end(JSON.stringify(ctx.body));
-      }
-      return res.end(ctx.body);
-    }).catch(err => this.emit("error", err, ctx));
+    let middlePromise = this.compose(ctx, this.middlewares);
+    middlePromise
+      .then(() => respond(ctx))
+      .catch(err => this.emit("error", err, ctx));
   }
+
   listen() {
     // 避免函数嵌套,将createServer的回调提炼为单独的方法.
     let server = http.createServer(this.handleRequest.bind(this));
     server.listen(...arguments); // 将linsener方法参数原样传递
   }
+}
+// 由koa处理response
+function respond(ctx) {
+  const res = ctx.res;
+  if (!ctx.body) return res.end("Not Found");
+  if (ctx.body instanceof Stream) { // 对象为数据流的情况(下载文件)
+    res.setHeader('Content-type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', 'attachment;filename=' + encodeURIComponent('下载'));
+    return ctx.body.pipe(res);
+  }
+  if (typeof ctx.body === 'object') { // body为 对象的情况
+    res.setHeader("Content-Type", "application/json");
+    return res.end(JSON.stringify(ctx.body));
+  }
+  return res.end(ctx.body);
 }
 module.exports = Application;

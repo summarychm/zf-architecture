@@ -5,17 +5,17 @@ let mime = require("mime");
 // 静态资源加载
 function static(pathName) {
   return async (ctx, next) => {
-    console.log("pathnanme",pathName,ctx.method,ctx.path)
+    console.log("pathname", pathName, ctx.method, ctx.path);
     // 读取用户索要的页面
     let requestPath = path.join(pathName, ctx.path);
     try {
       let statObj = await fsPromise.stat(requestPath);
-      if (statObj.isDirectory()) //如果路径是目录则加入index.html
+      if (statObj.isDirectory()) //如果路径是目录则读取index.html
         requestPath = path.join(requestPath, 'index.html');
       ctx.set('Context-Type', `${mime.getType(requestPath)};charset=utf8`);
-      ctx.body = fs.createReadStream(requestPath);
+      ctx.body = fs.createReadStream(requestPath);//将数据流传给ctx.body
     } catch (e) {
-      return next()
+      return next(); //交由其他中间件处理
     }
   }
 }
