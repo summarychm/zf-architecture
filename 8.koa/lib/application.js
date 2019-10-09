@@ -14,6 +14,7 @@ class Application extends EventEmitter {
     this.request = Object.create(request);
     this.response = Object.create(response);
     this.middlewares = []; // 存放中间件集合
+    debugger
   }
   // 注册中间件,接收一个 async function
   use(fn) {
@@ -26,19 +27,6 @@ class Application extends EventEmitter {
     ctx.req = ctx.request.req = req;// 自己封装的request上应该有req指向原声的req
     ctx.res = ctx.response.res = res;
     return ctx;
-
-    this.ctx = {
-      ...this.ctx,
-      request: req,
-      response: res,
-      req,
-      res
-    };
-    // 方便在子类中获取 req & res(方便获取method/path等属性)
-    this.ctx.request.req = req;
-    this.ctx.response.res = res;
-
-    return this.ctx;
   }
   // 组合中间件,使用者可以通过 next() 来控制执行,相当于返回一个生成器
   // 通过async/await来层层等待,直到所有middleware执行完毕

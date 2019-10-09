@@ -12,6 +12,7 @@ function defineSetter(property,key){
     });
 }
 defineGetter('request','method');
+defineSetter('request','path');
 defineGetter('response','body');
 // ctx.method == ctx.request.method
 // ctx.body = 123;  ctx.response.body = 123

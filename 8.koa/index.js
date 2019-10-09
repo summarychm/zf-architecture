@@ -4,23 +4,24 @@ let path = require("path");
 let Koa = require("./lib/application");
 // let Koa=require("koa")
 
-let static = require('./lib/koa-static');
+let static = require('./middleware/koa-static');
+let bodyParset=require("./middleware/koa-bodyParser");
 
 let app = new Koa();
-app.use(static(path.join(__dirname,"./public"))); //静态资源中间件
+app.use(static("./public")); //静态资源中间件
 
-app.use(async (ctx, next) => {
-  // throw new Error("我是错误信息! -- abc");
-  console.log('============ ctx.res.URL begin ====================');
-  console.log(ctx.req.URL);
-  console.log('============ ctx.res.URL end ======================');
-  console.log(ctx.req.method);
-  console.log(ctx.request.req.method);
-  // ----------
-  console.log(ctx.request.method);
-  ctx.response.body = 'hello'
-  console.log(ctx.body);
-});
+// app.use(async (ctx, next) => {
+//   // throw new Error("我是错误信息! -- abc");
+//   console.log('============ ctx.res.URL begin ====================');
+//   console.log(ctx.req.URL);
+//   console.log('============ ctx.res.URL end ======================');
+//   console.log(ctx.req.method);
+//   console.log(ctx.request.req.method);
+//   // ----------
+//   console.log(ctx.request.method);
+//   ctx.response.body = 'hello'
+//   console.log(ctx.body);
+// });
 
 
 // app.use(async (ctx, next) => {
