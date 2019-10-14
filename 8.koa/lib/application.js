@@ -1,6 +1,7 @@
 let http = require("http");
 let Stream = require("stream");
 let EventEmitter = require('events'); // 用于报错捕获
+
 let context = require("./context");
 let request = require("./request");
 let response = require("./response");
@@ -9,12 +10,16 @@ let response = require("./response");
 class Application extends EventEmitter {
   constructor() {
     super();
+    console.log("888888888888888888888");
+    this.subdomainOffset = 2;
+    this.env = process.env.NODE_ENV || 'development';  // 标识Koa实例的执行环境
+    this.proxy = false;
     //创建新实例,这样修改ctx/request/response不会应影响到默认对象,并可以访问到源对象的值
     this.ctx = Object.create(context);
     this.request = Object.create(request);
     this.response = Object.create(response);
     this.middlewares = []; // 存放中间件集合
-    debugger
+
   }
   // 注册中间件,接收一个 async function
   use(fn) {

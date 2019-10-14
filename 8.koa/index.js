@@ -4,11 +4,24 @@ let path = require("path");
 let Koa = require("./lib/application");
 // let Koa=require("koa")
 
-let static = require('./middleware/koa-static');
-let bodyParset=require("./middleware/koa-bodyParser");
+// let static = require('./middleware/koa-static');
+// let bodyParset = require("./middleware/koa-bodyParser");
+
+
 
 let app = new Koa();
-app.use(static("./public")); //静态资源中间件
+// app.use(static("./public")); //静态资源中间件
+
+// response 耗时统计
+app.use(async (ctx, next) => {
+  console.log("ctx.xx",ctx.xx);
+  ctx.xx="xx";
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  // ctx.response.set("X-Response-Time", `${ms}ms`);
+  ctx.body=`共耗时: ${ms}ms`
+});
 
 // app.use(async (ctx, next) => {
 //   // throw new Error("我是错误信息! -- abc");
@@ -79,7 +92,7 @@ app.use(static("./public")); //静态资源中间件
 
 app.on("error", (err, ctx) => {
   console.log(err)
-  ctx.res.end("error 出错了"+JSON.stringify(err));
+  ctx.res.end("error 出错了" + JSON.stringify(err));
 })
 app.listen(3000, function () {
   console.log("server 启动成功");
