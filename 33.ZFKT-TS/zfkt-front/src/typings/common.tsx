@@ -1,4 +1,5 @@
-// action接口
+
+// action接口 
 export interface TypeAction {
 	type: string;
 	payload: any;
