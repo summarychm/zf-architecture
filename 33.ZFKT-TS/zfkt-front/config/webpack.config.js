@@ -1,13 +1,9 @@
 
 const path = require("path");
 const webpack = require("webpack");
-
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const url = {
-  dist: path.join(__dirname, "dist"),
-  nodeModules: path.resolve(__dirname, 'node_modules'),
-  templateHtml: './public/index.html',
-}
+
+const url = require("./urlPath")
 
 module.exports = {
   mode: "development",
@@ -22,21 +18,27 @@ module.exports = {
     hot: true,
     contentBase: url.dist,
     historyApiFallback: {
-      index: './index.html'//webpack打包后生成到目标根目录下面的index.html文件
+      index: './index.html'//output路径下的index.html
     }
   },
   resolve: {
     alias: {
       "~": url.nodeModules,
+      "$types": url.$types,
     },
     extensions: [".ts", ".tsx", ".js", ".json"],
   },
   module: {
     rules: [{
       test: /\.(j|t)sx?$/,
-      loader: "ts-loader",
-      // exclude: path.resolve(__dirname, 'node_modules')
       exclude: /node_modules/,
+      // exclude: path.resolve(__dirname, 'node_modules')
+      loader: "ts-loader",
+      options: {
+        transpileOnly: true
+      }
+
+
     }, {
       enforce: "pre",
       test: /\.(j|t)sx?$/,
@@ -56,6 +58,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: url.templateHtml
     }),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
   ],
 }

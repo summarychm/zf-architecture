@@ -12,6 +12,7 @@
 	"author": "max.liu",
 	"license": "ISC",
 	"dependencies": {
+		"@types/redux-logger": "^3.0.7",
 		"antd": "^3.23.6",
 		"connected-react-router": "^6.5.2",
 		"qs": "^6.9.0",
@@ -22,6 +23,7 @@
 		"react-swipe": "^6.0.4",
 		"react-transition-group": "^4.3.0",
 		"redux": "^4.0.4",
+		"redux-logger": "^3.0.6",
 		"redux-saga": "^1.1.1"
 	},
 	"devDependencies": {
@@ -48,12 +50,12 @@
 		"less-loader": "^5.0.0",
 		"source-map-loader": "^0.2.4",
 		"style-loader": "^1.0.0",
+		"svg-inline-loader": "^0.8.0",
 		"ts-loader": "^6.2.0",
 		"typescript": "^3.6.4",
 		"url-loader": "^2.2.0",
 		"webpack": "^4.41.2",
 		"webpack-cli": "^3.3.9",
-		"webpack-dev-server": "^3.8.2",
-		"svg-inline-loader": "^0.8.0"
+		"webpack-dev-server": "^3.8.2"
 	}
 }

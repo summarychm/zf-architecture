@@ -1,0 +1,2 @@
+// Home页,更改当前分类
+export const SET_CURRENT_CATEGORY="SET_CURRENT_CATEGORY";
