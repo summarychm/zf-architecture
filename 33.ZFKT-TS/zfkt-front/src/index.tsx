@@ -12,6 +12,9 @@ import history from "./store/history";
 import Home from "./pages/Home";
 import Mine from "./pages/Mine";
 import Profile from "./pages/Profile";
+
+import FootTab from './component/FootTab';
+
 window.store=store;
 const App = () => {
 	return (
@@ -24,7 +27,7 @@ const App = () => {
 						<Route path="/profile" exact component={Profile} />
 					</Switch>
 				</main>
-				{/* <FootTab /> */}
+				<FootTab />
 			</Router>
 		</Provider>
 	);
