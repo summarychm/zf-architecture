@@ -1,4 +1,5 @@
-import { TypeAction, EnumCategory } from "$types/common";
+import { TypeAction, EnumCategory } from "../../typings/common";
+// import { TypeAction, EnumCategory } from "$types/common";
 import * as types from "./action-types";
 const initState = {
 	currentCategory: EnumCategory.all,

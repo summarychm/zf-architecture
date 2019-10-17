@@ -3,6 +3,7 @@ import { createStore, applyMiddleware, compose } from "redux";
 import logger from "redux-logger";
 import saga from "redux-saga";
 import { routerMiddleware } from "connected-react-router";
+
 import history from "./history";
 import reducers from "./reducers";
 

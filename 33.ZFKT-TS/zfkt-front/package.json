@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "webpack-dev-server --config config/webpack.config.js"
+		"serve": "webpack-dev-server --config ./config/webpack.config.js",
+		"build" :"webpack --config ./config/webpack.config.js"
 	},
 	"keywords": [
 		"zfkt"
@@ -15,6 +16,7 @@
 		"@types/redux-logger": "^3.0.7",
 		"antd": "^3.23.6",
 		"connected-react-router": "^6.5.2",
+		"fs.realpath": "^1.0.0",
 		"qs": "^6.9.0",
 		"react": "^16.10.2",
 		"react-dom": "^16.10.2",

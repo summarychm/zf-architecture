@@ -1,5 +1,4 @@
 
-const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -7,7 +6,7 @@ const url = require("./urlPath")
 
 module.exports = {
   mode: "development",
-  entry: "./src/index.tsx",
+  entry: url.entry,
   output: {
     filename: "bundle.js",
     path: url.dist,
@@ -16,9 +15,9 @@ module.exports = {
   devtool: "source-map", //改为精简模式,source-map
   devServer: {
     hot: true,
-    contentBase: url.dist,
+    contentBase: url.dist, // 
     historyApiFallback: {
-      index: './index.html'//output路径下的index.html
+      index: url.wdsNotFoundUrl
     }
   },
   resolve: {
@@ -37,8 +36,6 @@ module.exports = {
       options: {
         transpileOnly: true
       }
-
-
     }, {
       enforce: "pre",
       test: /\.(j|t)sx?$/,

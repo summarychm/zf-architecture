@@ -6,9 +6,9 @@ import home from "./home";
 
 let rootReducer=combineReducers({
 	home,
-	router: connectRouter(history),
+	router: connectRouter(history),//包装history
 });
-// 返回rootReducer的Type
+// 定义rootReducer的Type
 export type TypeRootReducer={
 	[key in keyof typeof rootReducer]:ReturnType<typeof rootReducer[key]>
 }

@@ -10,21 +10,21 @@ import store from "./store";
 import history from "./store/history";
 
 import Home from "./pages/Home";
-
+import Mine from "./pages/Mine";
+import Profile from "./pages/Profile";
+window.store=store;
 const App = () => {
 	return (
 		<Provider store={store}>
 			<Router history={history}>
-				<>
-					<main className="main-container">
-						<Switch>
-							<Route path="/" exact component={Home} />
-							{/* <Route path="/mine" component={mine} />
-        <Route path="/profile" component={Profile} /> */}
-						</Switch>
-					</main>
-					{/* <FootTab /> */}
-				</>
+				<main className="main-container">
+					<Switch>
+						<Route path="/" exact component={Home} />
+						<Route path="/mine" exact component={Mine} />
+						<Route path="/profile" exact component={Profile} />
+					</Switch>
+				</main>
+				{/* <FootTab /> */}
 			</Router>
 		</Provider>
 	);
