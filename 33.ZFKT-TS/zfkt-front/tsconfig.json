@@ -14,6 +14,7 @@
       "$types/*": [ "./src/typings/*" ],
       "$component/*":["./src/component/*"],
       "$actions/*":["./src/store/actions/*"],
+      "$assets/*":["./public/*"],
     }, /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     // "lib": [],                             /* Specify library files to be included in the compilation. */

@@ -16,7 +16,7 @@ function Home(props: any) {
 				toggleShow={props.toggleShow} 
 				setToggleShow={props.setToggleShow}
 				/>
-			Home
+			首页
 			<br />
 			<Link to="/mine">跳转到mine</Link>
 		</>

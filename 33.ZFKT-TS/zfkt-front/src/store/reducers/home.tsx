@@ -7,6 +7,7 @@ const initState = {
 // state Types
 export interface TypeHomeState {
 	currentCategory: string;
+	toggleShow:boolean,
 }
 // action Types
 export interface TypeHomeAction extends TypeAction {
