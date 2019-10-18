@@ -8,7 +8,7 @@ interface iProps {
 export default function login(props: iProps) {
 	return (
 		<>
-			<NavHeader history={props.history}>登录</NavHeader>
+			<NavHeader>登录</NavHeader>
 			<div>Login</div>
 		</>
 	);

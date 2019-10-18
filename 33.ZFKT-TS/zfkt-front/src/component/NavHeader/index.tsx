@@ -4,7 +4,7 @@ import history from "../../store/history";
 import "./index.less";
 
 interface iProps {
-	children: ReactChild|ReactChild[];
+	children: ReactChild;
 }
 
 export default function NavHeader(props: iProps) {
