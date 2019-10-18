@@ -1,11 +1,18 @@
-import React from 'react';
+import React from "react";
+import { Icon } from "antd";
 
-interface TypeHeader{
-  
+import "./index.less";
+
+interface iProps {
+	history: any;
+	children: React.ReactChildren;
 }
 
-export default function(props){
-  return(<div>
-    HomeHeader
-  </div>)
+export default function(props: iProps) {
+	return (
+		<div className="nav-header">
+			<Icon type="left" onClick={() => props.history.goBack()} />
+			{props.children}
+		</div>
+	);
 }

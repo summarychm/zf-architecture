@@ -27,6 +27,7 @@ module.exports = {
       "$component": url.$component,
       "$actions": url.$actions,
       "$assets": url.$assets,
+      "$utils": url.$utils,
     },
     extensions: [".ts", ".tsx", ".js", ".json"],
   },

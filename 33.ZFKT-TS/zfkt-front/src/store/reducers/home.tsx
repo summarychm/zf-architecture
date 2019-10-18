@@ -6,12 +6,13 @@ const initState = {
 };
 // state Types
 export interface TypeHomeState {
-	currentCategory: string;
+	currentCategory: EnumCategory;
 	toggleShow:boolean,
 }
 // action Types
 export interface TypeHomeAction extends TypeAction {
-	payload: string|boolean;
+	payload: any;
+	// payload: string|boolean;
 }
 
 export default function(state: TypeHomeState = initState, action: TypeHomeAction) {

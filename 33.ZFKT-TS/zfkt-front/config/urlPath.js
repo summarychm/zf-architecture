@@ -12,4 +12,5 @@ module.exports = {
   $component: path.resolve(__dirname, '../src/component'),
   $actions: path.resolve(__dirname, "../src/store/actions"),
   $assets: path.resolve(__dirname, "../public"),
+  $utils: path.resolve(__dirname, "../src/utils"),
 }
