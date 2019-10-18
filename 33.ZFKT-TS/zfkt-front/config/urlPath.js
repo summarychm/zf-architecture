@@ -6,5 +6,9 @@ module.exports = {
   wdsNotFoundUrl: './index.html',
   nodeModules: path.resolve(__dirname, '../node_modules'),
   templateHtml: './public/index.html',
-  $types: path.resolve(__dirname, '../src/typings')
+
+  // alias url
+  $types: path.resolve(__dirname, '../src/typings'),
+  $component: path.resolve(__dirname, '../src/component'),
+  $actions: path.resolve(__dirname, "../src/store/actions"),
 }

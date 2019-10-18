@@ -1,0 +1,4 @@
+// Home页,更改当前分类
+export const HOME_SET_CURRENT_CATEGORY="HOME_SET_CURRENT_CATEGORY";
+// Home页,切换菜单栏显隐
+export const HOME_SET_TOGGLE_SHOW="HOME_SET_TOGGLE_SHOW";

@@ -24,6 +24,8 @@ module.exports = {
     alias: {
       "~": url.nodeModules,
       "$types": url.$types,
+      "$component":url.$component,
+      "$actions":url.$actions
     },
     extensions: [".ts", ".tsx", ".js", ".json"],
   },

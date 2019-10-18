@@ -1,18 +1,23 @@
-import { TypeAction, EnumCategory } from "../../typings/common";
-// import { TypeAction, EnumCategory } from "$types/common";
-import * as types from "./action-types";
+import { TypeAction, EnumCategory } from "$types/common";
+import * as types from "../action-types";
 const initState = {
 	currentCategory: EnumCategory.all,
+	toggleShow:false,
 };
+// state Types
 export interface TypeHomeState {
 	currentCategory: string;
 }
+// action Types
 export interface TypeHomeAction extends TypeAction {
-	payload: string;
+	payload: string|boolean;
 }
+
 export default function(state: TypeHomeState = initState, action: TypeHomeAction) {
 	switch (action.type) {
-		case types.SET_CURRENT_CATEGORY:
+		case types.HOME_SET_TOGGLE_SHOW:
+			return {...state,toggleShow:action.payload}
+		case types.HOME_SET_CURRENT_CATEGORY:
 			return { ...state, currentCategory: action.payload };
 		default:
 			return state

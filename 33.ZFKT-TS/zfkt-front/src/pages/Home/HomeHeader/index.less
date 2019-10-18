@@ -1,0 +1,45 @@
+@BG_COLOR:#2A2A2A;
+
+.home-header{
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    box-sizing: border-box;
+    z-index: 999;
+    .header-logo{
+        height:1rem;
+        background-color: @BG_COLOR;
+        color:#FFFFFF;
+        display:flex;
+        justify-content: space-between;
+        align-items: center;
+        img{
+            width:2rem;
+            margin-left:.2rem;
+        }
+        i{
+            font-size:.5rem;
+            margin-right:0.2rem;
+        }
+    }
+    .header-category{
+        position: absolute;
+        width:100%;
+        left:0;
+        top:1rem;
+        padding:.1rem .5rem;
+        background-color: @BG_COLOR;
+        li{
+            line-height: .6rem;
+            text-align: center;
+            color:#FFF;
+            font-size:.3rem;
+            border-top:.002rem solid lighten(@BG_COLOR,20%);
+            &.active{
+                color:rebeccapurple;
+                font-weight: bold;
+            }
+        }
+    }
+}
