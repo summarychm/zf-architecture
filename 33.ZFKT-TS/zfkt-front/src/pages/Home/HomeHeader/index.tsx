@@ -6,7 +6,7 @@ import { EnumCategory } from "$types/common";
 import "./index.less";
 import logoImg from "$assets/image/zfkelogo.png";
 // import logoImg from "../../../../public/image/zfkelogo.png";
-
+ 
 
 interface iProps {
 	currentCategory: string;
@@ -15,6 +15,7 @@ interface iProps {
 	setToggleShow: Function;
 }
 
+// header 动画相关
 const duration = 300;
 const defaultStyle = {
 	opacity: 0,

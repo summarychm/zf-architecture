@@ -14,7 +14,7 @@ import Mine from "./pages/Mine";
 import Profile from "./pages/Profile";
 
 import FootTab from './component/FootTab';
-
+  
 window.store=store;
 const App = () => {
 	return (
@@ -32,5 +32,4 @@ const App = () => {
 		</Provider>
 	);
 };
-
 ReactDOM.render(<App />, document.getElementById("root"));

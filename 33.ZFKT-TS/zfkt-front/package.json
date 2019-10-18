@@ -15,8 +15,11 @@
 	"dependencies": {
 		"@types/redux-logger": "^3.0.7",
 		"antd": "^3.23.6",
+		"autoprefixer": "^9.6.5",
 		"connected-react-router": "^6.5.2",
 		"fs.realpath": "^1.0.0",
+		"postcss-loader": "^3.0.0",
+		"postcss-pxtorem": "^4.0.1",
 		"qs": "^6.9.0",
 		"react": "^16.10.2",
 		"react-dom": "^16.10.2",

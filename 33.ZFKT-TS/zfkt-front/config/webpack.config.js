@@ -24,9 +24,9 @@ module.exports = {
     alias: {
       "~": url.nodeModules,
       "$types": url.$types,
-      "$component":url.$component,
-      "$actions":url.$actions,
-      "$assets":url.$assets,
+      "$component": url.$component,
+      "$actions": url.$actions,
+      "$assets": url.$assets,
     },
     extensions: [".ts", ".tsx", ".js", ".json"],
   },
@@ -45,10 +45,39 @@ module.exports = {
       loader: "source-map-loader"
     }, {
       test: /\.css$/,
-      loader: ['style-loader', 'css-loader']
+      loader: ['style-loader', 'css-loader', {
+        loader: "postcss-loader",
+        options: {
+          plugins: [
+            require("autoprefixer")(),
+            require("postcss-pxtorem")({
+              rootValue: 100,// 根元素大小
+              unitPrecision: 5, // 保留的小数位
+              propList: ['*'], // 支持哪些属性
+              selectorBlackList: [], //哪些属性不会被转义
+              minPixelValue: 12 // 转换临界值
+            }),
+          ]
+        }
+      }]
     }, {
       test: /\.less$/,
-      use: ['style-loader', "css-loader", "less-loader"]
+      use: ['style-loader', "css-loader", {
+        loader: "postcss-loader",
+        options: {
+          ident: "postcss",
+          plugins: [
+            require("autoprefixer")(),
+            require("postcss-pxtorem")({
+              rootValue: 100,// 根元素大小
+              unitPrecision: 5, // 保留的小数位
+              propList: ['*'], // 支持哪些属性
+              selectorBlackList: [], //哪些属性不会被转义
+              minPixelValue: 12 // 转换临界值
+            }),
+          ]
+        }
+      }, "less-loader"]
     }, {
       test: /\.(git|svg|png|jpg|jpeg)$/,
       use: ['url-loader']
